@@ -14,6 +14,13 @@
 #define KILO_VERSION "0.0.1"
 #define CTRL_KEY(k) ((k) & 0x1f)
 
+enum editorKey {
+    ARROW_LEFT = 1000,
+    ARROW_RIGHT,
+    ARROW_UP,
+    ARROW_DOWN
+};
+
 /*** Data ***/
 
 struct editorConfig {
@@ -71,7 +78,7 @@ void enableRawMode() {
 }
 
 /* Function to read a key from the user */
-char editorReadKey() {
+int editorReadKey() {
     int nread;
     char c;
     while ((nread = read(STDIN_FILENO, &c, 1)) != 1) {
@@ -79,7 +86,29 @@ char editorReadKey() {
             die("read");
         }
     }
-    return c;
+
+    if (c == '\x1b') {
+        char seq[3];
+
+        if (read(STDIN_FILENO, &seq[0], 1) != 1) {
+            return '\x1b';
+        }
+        if (read(STDIN_FILENO, &seq[1], 1) != 1) {
+            return '\x1b';
+        }
+
+        if (seq[0] == '[') {
+            switch (seq[1]) {
+                case 'A': return ARROW_UP;
+                case 'B': return ARROW_DOWN;
+                case 'C': return ARROW_RIGHT;
+                case 'D': return ARROW_LEFT;
+            }
+        }
+        return '\x1b';
+    } else {
+        return c;
+    }
 }
 
 /* Function to get the cursor position */
@@ -232,26 +261,26 @@ void editorRefreshScreen() {
 /*** Input ***/
 
 /* Function to move cursor */
-void editorMoveCursor(char key) {
+void editorMoveCursor(int key) {
     switch (key) {
-        case 'a':
-            E.cx--;
+        case ARROW_LEFT:
+            if(E.cx != 0) E.cx--;
             break;
-        case 'd':
-            E.cx++;
+        case ARROW_RIGHT:
+            if (E.cx != E.screencols - 1) E.cx++;
             break;
-        case 'w':
-            E.cy--;
+        case ARROW_UP:
+            if (E.cy != 0) E.cy--;
             break;
-        case 's':
-            E.cy++;
+        case ARROW_DOWN:
+            if (E.cy != E.screenrows - 1) E.cy++;
             break;
     }
 }
 
 /* Function to process key from user */
 void editorProcessKeypress() {
-    char c = editorReadKey();
+    int c = editorReadKey();
 
     switch (c) {
         case CTRL_KEY('q'):
@@ -261,10 +290,10 @@ void editorProcessKeypress() {
             break;
 
         // when we match w/a/s/d
-        case 'w': // fall down
-        case 's': // fall down
-        case 'a': // fall down
-        case 'd':
+        case ARROW_UP: // fall down
+        case ARROW_DOWN: // fall down
+        case ARROW_LEFT: // fall down
+        case ARROW_RIGHT:
             editorMoveCursor(c);
             break;
     }
