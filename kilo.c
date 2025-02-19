@@ -10,14 +10,17 @@
 #include <string.h>
 
 /*** Defines ***/
+
+#define KILO_VERSION "0.0.1"
 #define CTRL_KEY(k) ((k) & 0x1f)
 
 /*** Data ***/
 
 struct editorConfig {
+    int cx, cy; // cursor x, y
     int screenrows;
     int screencols;
-    struct termios orig_termios;
+    struct termios orig_termios; // original terminal settings
 };
 
 struct editorConfig E;
@@ -107,7 +110,7 @@ int getCursorPosition(int *rows, int *cols) {
     if (buf[0] != '\x1b' || buf[1] != '[') {
         return -1;
     }
-    
+
     // parse buf[2] by semicolon delimiter and put into rows, cols
     if (sscanf(&buf[2], "%d;%d", rows, cols) != 2) {
         return -1;
@@ -168,30 +171,83 @@ void abFree(struct abuf *ab) {
 void editorDrawRows(struct abuf *ab) {
     int y;
     for (y = 0; y < E.screenrows; y++) {
-        abAppend(ab, "~", 1);
 
-         if (y < E.screenrows - 1) {
-             abAppend(ab, "\r\n", 2);
-         }
+        // display welcome message
+        if (y == E.screenrows / 3) {
+
+            // make welcome message
+            char welcome[80];
+            int welcomelen = snprintf(welcome, sizeof(welcome),
+                    "Kilo editor -- version %s", KILO_VERSION);
+            if (welcomelen > E.screencols) {
+                welcomelen = E.screencols;
+            }
+
+            // centering
+            int padding = (E.screencols - welcomelen) / 2;
+            if (padding) {
+                abAppend(ab, "~", 1);
+                padding--;
+            }
+            while (padding--) {
+                abAppend(ab, " ", 1);
+            }
+            
+            // draw to dynamic string
+            abAppend(ab, welcome, welcomelen);
+
+        // print tildes
+        } else {
+            abAppend(ab, "~", 1); // draw a tilde
+        }
+
+        // erases part of line to the right of the cursor
+        abAppend(ab, "\x1b[K", 3);
+        if (y < E.screenrows - 1) {
+            abAppend(ab, "\r\n", 2);
+        }
     }
 }
 
 /* Function to refresh the screen */
 void editorRefreshScreen() {
     struct abuf ab = ABUF_INIT;
-    
-    abAppend(&ab, "\x1b[2J", 4);
-    abAppend(&ab, "\x1b[H", 3);
 
-    editorDrawRows(&ab);
+    abAppend(&ab, "\x1b[?25l", 6); // cursor hide
+    abAppend(&ab, "\x1b[H", 3); // move cursor
 
-    abAppend(&ab, "\x1b[H", 3);
+    editorDrawRows(&ab); // draw the rows
 
-    write(STDOUT_FILENO, ab.b, ab.len);
-    abFree(&ab);
+    char buf[32];
+    // move cursor to position given by E.cx, E.cy
+    snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + 1);
+    abAppend(&ab, buf, strlen(buf));
+
+    abAppend(&ab, "\x1b[?25h", 6); // cursor show
+
+    write(STDOUT_FILENO, ab.b, ab.len); // write the dynamic string to screen
+    abFree(&ab); // free the memory
 }
 
 /*** Input ***/
+
+/* Function to move cursor */
+void editorMoveCursor(char key) {
+    switch (key) {
+        case 'a':
+            E.cx--;
+            break;
+        case 'd':
+            E.cx++;
+            break;
+        case 'w':
+            E.cy--;
+            break;
+        case 's':
+            E.cy++;
+            break;
+    }
+}
 
 /* Function to process key from user */
 void editorProcessKeypress() {
@@ -199,7 +255,17 @@ void editorProcessKeypress() {
 
     switch (c) {
         case CTRL_KEY('q'):
+            write(STDOUT_FILENO, "\x1b[2J", 4); // clear screen
+            write(STDOUT_FILENO, "\x1b[H", 3); // move cursor
             exit(0);
+            break;
+
+        // when we match w/a/s/d
+        case 'w': // fall down
+        case 's': // fall down
+        case 'a': // fall down
+        case 'd':
+            editorMoveCursor(c);
             break;
     }
 }
@@ -208,6 +274,9 @@ void editorProcessKeypress() {
 
 /* Start up the editor by initialising the struct */
 void initEditor() {
+    E.cx = 0;
+    E.cy = 0;
+
     if (getWindowSize(&E.screenrows, &E.screencols) == -1) {
         die("getWindowSize");
     }
