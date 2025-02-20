@@ -1,5 +1,9 @@
 /*** Includes ***/
 
+#define _DEFAULT_SOURCE
+#define _BSD_SOURCE
+#define _GNU_SOURCE
+
 #include <unistd.h>
 #include <termios.h>
 #include <stdlib.h>
@@ -7,6 +11,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <sys/ioctl.h>
+#include <sys/types.h>
 #include <string.h>
 
 /*** Defines ***/
@@ -28,10 +33,18 @@ enum editorKey {
 
 /*** Data ***/
 
+typedef struct erow {
+    int size;
+    char *chars;
+} erow;
+
+
 struct editorConfig {
     int cx, cy; // cursor x, y
     int screenrows;
     int screencols;
+    int numrows;
+    erow row;
     struct termios orig_termios; // original terminal settings
 };
 
@@ -199,6 +212,31 @@ int getWindowSize(int *rows, int *cols) {
     }
 }
 
+/*** File I/O ***/
+
+/* Open the edtior for reading a file from the disk */
+void editorOpen(char *filename) {
+    FILE *fp = fopen(filename, "r"); // open the file in read mode
+    if (!fp) die ("fopen");
+
+    char *line = "NULL";
+    size_t linecap = 0;
+    ssize_t linelen;
+    linelen = getline(&line, &linecap, fp);
+    if (linelen != -1) {
+        while (linelen > 0 && (line[linelen - 1] == '\n' ||
+                               line[linelen - 1] == '\r'))
+            linelen--;
+        E.row.size = linelen;
+        E.row.chars = malloc(linelen + 1);
+        memcpy(E.row.chars, line, linelen);
+        E.row.chars[linelen] = '\0';
+        E.numrows = 1;
+    }
+    free(line); // free memory
+    fclose(fp); // close the file
+}
+
 /*** Append Buffer ***/
 
 struct abuf {
@@ -232,32 +270,38 @@ void editorDrawRows(struct abuf *ab) {
     for (y = 0; y < E.screenrows; y++) {
 
         // display welcome message
-        if (y == E.screenrows / 3) {
+        if (y >= E.numrows) {
+            if (E.numrows == 0 && y == E.screenrows / 3) {
 
-            // make welcome message
-            char welcome[80];
-            int welcomelen = snprintf(welcome, sizeof(welcome),
-                    "Kilo editor -- version %s", KILO_VERSION);
-            if (welcomelen > E.screencols) {
-                welcomelen = E.screencols;
+                // make welcome message
+                char welcome[80];
+                int welcomelen = snprintf(welcome, sizeof(welcome),
+                        "Kilo editor -- version %s", KILO_VERSION);
+                if (welcomelen > E.screencols) {
+                    welcomelen = E.screencols;
+                }
+
+                // centering
+                int padding = (E.screencols - welcomelen) / 2;
+                if (padding) {
+                    abAppend(ab, "~", 1);
+                    padding--;
+                }
+                while (padding--) {
+                    abAppend(ab, " ", 1);
+                }
+
+                // draw to dynamic string
+                abAppend(ab, welcome, welcomelen);
+
+                // print tildes
+            } else {
+                abAppend(ab, "~", 1); // draw a tilde
             }
-
-            // centering
-            int padding = (E.screencols - welcomelen) / 2;
-            if (padding) {
-                abAppend(ab, "~", 1);
-                padding--;
-            }
-            while (padding--) {
-                abAppend(ab, " ", 1);
-            }
-
-            // draw to dynamic string
-            abAppend(ab, welcome, welcomelen);
-
-            // print tildes
         } else {
-            abAppend(ab, "~", 1); // draw a tilde
+            int len = E.row.size;
+            if (len > E.screencols) len = E.screencols;
+            abAppend(ab, E.row.chars, len);
         }
 
         // erases part of line to the right of the cursor
@@ -356,6 +400,7 @@ void editorProcessKeypress() {
 void initEditor() {
     E.cx = 0;
     E.cy = 0;
+    E.numrows = 0;
 
     if (getWindowSize(&E.screenrows, &E.screencols) == -1) {
         die("getWindowSize");
@@ -363,13 +408,17 @@ void initEditor() {
 }
 
 /* Main function */
-int main() {
+int main(int argc, char *argv[]) {
     enableRawMode();
     initEditor();
+    if (argc >= 2) {
+        editorOpen(argv[1]);
+    }
 
     while (1) {
         editorRefreshScreen();
         editorProcessKeypress();
     }
+
     return 0;
 }
