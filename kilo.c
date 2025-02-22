@@ -13,6 +13,8 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <string.h>
+#include <time.h>
+#include <stdarg.h>
 
 /*** Defines ***/
 
@@ -51,7 +53,10 @@ struct editorConfig {
     int screenrows;
     int screencols;
     int numrows;
-    erow *row;
+    erow *row; // the current row struct
+    char *filename; // filename
+    char statusmsg[80];
+    time_t statusmsg_time;
     struct termios orig_termios; // original terminal settings
 };
 
@@ -277,6 +282,9 @@ void editorAppendRow(char *s, size_t len) {
 
 /* Open the edtior for reading a file from the disk */
 void editorOpen(char *filename) {
+    free(E.filename);
+    E.filename = strdup(filename);
+
     FILE *fp = fopen(filename, "r"); // open the file in read mode
     if (!fp) die ("fopen");
 
@@ -285,7 +293,7 @@ void editorOpen(char *filename) {
     ssize_t linelen;
     while ((linelen = getline(&line, &linecap, fp)) != -1) {
         while (linelen > 0 && (line[linelen - 1] == '\n' ||
-                               line[linelen - 1] == '\r'))
+                    line[linelen - 1] == '\r'))
             linelen--;
         editorAppendRow(line, linelen);
     }
@@ -377,7 +385,7 @@ void editorDrawRows(struct abuf *ab) {
                 // draw to dynamic string
                 abAppend(ab, welcome, welcomelen);
 
-            // print tildes
+                // print tildes
             } else {
                 abAppend(ab, "~", 1); // draw a tilde
             }
@@ -390,10 +398,49 @@ void editorDrawRows(struct abuf *ab) {
 
         // erases part of line to the right of the cursor
         abAppend(ab, "\x1b[K", 3);
-        if (y < E.screenrows - 1) {
-            abAppend(ab, "\r\n", 2);
+        abAppend(ab, "\r\n", 2);
+    }
+}
+
+/* Function to draw status bar */
+void editorDrawStatusBar(struct abuf *ab) {
+
+    // enter inverted mode
+    abAppend(ab, "\x1b[7m", 4);
+
+    // make buffer for status bar, and line number status bar
+    char status[80], rstatus[80];
+    int len = snprintf(status, sizeof(status), "%.20s - %d lines",
+            E.filename ? E.filename : "[No Name]", E.numrows);
+    int rlen = snprintf(rstatus, sizeof(rstatus), "%d/%d",
+            E.cy + 1, E.numrows);
+
+    if (len > E.screencols) len = E.screencols;
+    abAppend(ab, status, len);
+
+    while (len < E.screencols) {
+        // once we are aligned against right edge of screen
+        if (E.screencols - len == rlen) {
+            abAppend(ab, rstatus, rlen); // add the second status bar
+            break;
+        } else {
+            abAppend(ab, " ", 1); // add space
+            len++;
         }
     }
+
+    // restore settings
+    abAppend(ab, "\x1b[m", 3);
+    abAppend(ab, "\r\n", 2);
+}
+
+/* Function to draw message bar */
+void editorDrawMessageBar(struct abuf *ab) {
+    abAppend(ab, "\x1b[K", 3); // clear the message bar
+    int msglen = strlen(E.statusmsg);
+    if (msglen > E.screencols) msglen = E.screencols;
+    if (msglen && time(NULL) - E.statusmsg_time < 5)
+        abAppend(ab, E.statusmsg, msglen);
 }
 
 /* Function to refresh the screen */
@@ -406,17 +453,27 @@ void editorRefreshScreen() {
     abAppend(&ab, "\x1b[H", 3); // move cursor
 
     editorDrawRows(&ab); // draw the rows
+    editorDrawStatusBar(&ab); // draw the status bar
 
     char buf[32];
     // move cursor to position given by E.cx, E.cy
     snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (E.cy - E.rowoff) + 1,
-                                              (E.rx - E.coloff) + 1);
+            (E.rx - E.coloff) + 1);
     abAppend(&ab, buf, strlen(buf));
 
     abAppend(&ab, "\x1b[?25h", 6); // cursor show
 
     write(STDOUT_FILENO, ab.b, ab.len); // write the dynamic string to screen
     abFree(&ab); // free the memory
+}
+
+/* Set status message function - ... means it is a variadic function */
+void editorSetStatusMessage(const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(E.statusmsg, sizeof(E.statusmsg), fmt, ap);
+    va_end(ap);
+    E.statusmsg_time = time(NULL);
 }
 
 /*** Input ***/
@@ -468,20 +525,27 @@ void editorProcessKeypress() {
             exit(0);
             break;
 
-        // home key
+            // home key
         case HOME_KEY:
             E.cx = 0;
             break;
 
-        // end key
+            // end key
         case END_KEY:
-            E.cx = E.screencols - 1;
+            if (E.cy < E.numrows)
+                E.cx = E.screencols - 1;
             break;
 
-        // page up or page down keys entered
+            // page up or page down keys entered
         case PAGE_UP: // fall down
         case PAGE_DOWN:
             {
+                if (c == PAGE_UP) {
+                    E.cy = E.rowoff;
+                } else if (c == PAGE_DOWN) {
+                    E.cy = E.rowoff + E.screenrows - 1;
+                }
+
                 int times = E.screenrows;
                 while (times--) {
                     editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
@@ -489,7 +553,7 @@ void editorProcessKeypress() {
             }
             break;
 
-        // when we match w/a/s/d
+            // when we match w/a/s/d
         case ARROW_UP: // fall down
         case ARROW_DOWN: // fall down
         case ARROW_LEFT: // fall down
@@ -510,10 +574,16 @@ void initEditor() {
     E.coloff = 0;
     E.numrows = 0;
     E.row = NULL;
+    E.filename = NULL;
+    E.statusmsg[0] = '\0';
+    E.statusmsg_time = 0;
 
     if (getWindowSize(&E.screenrows, &E.screencols) == -1) {
         die("getWindowSize");
     }
+
+    // make room for both status bars
+    E.screenrows -= 2;
 }
 
 /* Main function */
@@ -523,6 +593,8 @@ int main(int argc, char *argv[]) {
     if (argc >= 2) {
         editorOpen(argv[1]);
     }
+
+    editorSetStatusMessage("HELP: Ctrl-Q = quit");
 
     while (1) {
         editorRefreshScreen();
