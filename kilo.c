@@ -268,6 +268,7 @@ void editorAppendRow(char *s, size_t len) {
 
     E.row[at].rsize = 0;
     E.row[at].render = NULL;
+    editorUpdateRow(&E.row[at]); // update the row by populating render string
 
     E.numrows++;
 }
