@@ -24,6 +24,7 @@
 #define CTRL_KEY(k) ((k) & 0x1f)
 
 enum editorKey {
+    BACKSPACE = 127,
     ARROW_LEFT = 1000,
     ARROW_RIGHT,
     ARROW_UP,
@@ -278,6 +279,28 @@ void editorAppendRow(char *s, size_t len) {
     E.numrows++;
 }
 
+/* Function to insert character into row */
+void editorRowInsertChar(erow *row, int at, int c) {
+    if (at < 0 || at > row->size)
+        at = row->size;
+    row->chars = realloc(row->chars, row->size + 2);
+    memmove(&row->chars[at + 1], &row->chars[at], row->size - at + 1);
+    row->size++;
+    row->chars[at] = c;
+    editorUpdateRow(row);
+}
+
+/*** Editor Operations ***/
+
+/* Function to insert character */
+void editorInsertChar(int c) {
+    if (E.cy == E.numrows) {
+        editorAppendRow("", 0);
+    }
+    editorRowInsertChar(&E.row[E.cy], E.cx, c);
+    E.cx++;
+}
+
 /*** File I/O ***/
 
 /* Open the edtior for reading a file from the disk */
@@ -519,6 +542,12 @@ void editorProcessKeypress() {
     int c = editorReadKey();
 
     switch (c) {
+        
+        // new line
+        case '\r':
+            /* TODO */
+            break;
+
         case CTRL_KEY('q'):
             write(STDOUT_FILENO, "\x1b[2J", 4); // clear screen
             write(STDOUT_FILENO, "\x1b[H", 3); // move cursor
@@ -534,6 +563,13 @@ void editorProcessKeypress() {
         case END_KEY:
             if (E.cy < E.numrows)
                 E.cx = E.screencols - 1;
+            break;
+
+        // back space
+        case BACKSPACE:
+        case CTRL_KEY('h'):
+        case DEL_KEY:
+            /* TODO */
             break;
 
             // page up or page down keys entered
@@ -559,6 +595,16 @@ void editorProcessKeypress() {
         case ARROW_LEFT: // fall down
         case ARROW_RIGHT:
             editorMoveCursor(c);
+            break;
+
+        // control key
+        case CTRL_KEY('l'):
+        case '\x1b':
+            break;
+
+        // otherwise, try to insert a character
+        default:
+            editorInsertChar(c);
             break;
     }
 }
