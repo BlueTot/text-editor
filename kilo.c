@@ -526,6 +526,7 @@ void editorRefreshScreen() {
 
     editorDrawRows(&ab); // draw the rows
     editorDrawStatusBar(&ab); // draw the status bar
+    editorDrawMessageBar(&ab); // draw the message bar
 
     char buf[32];
     // move cursor to position given by E.cx, E.cy
