@@ -15,6 +15,7 @@
 #include <string.h>
 #include <time.h>
 #include <stdarg.h>
+#include <fcntl.h>
 
 /*** Defines ***/
 
@@ -303,6 +304,27 @@ void editorInsertChar(int c) {
 
 /*** File I/O ***/
 
+/* Convert editor rows to string, returns pointer to string
+ * Must free memory allocated */
+char *editorRowsToString(int *buflen) {
+    int totlen = 0;
+    int j;
+    for (j = 0; j < E.numrows; j++)
+        totlen += E.row[j].size + 1;
+    *buflen = totlen;
+
+    char *buf = malloc(totlen);
+    char *p = buf;
+    for (j = 0; j < E.numrows; j++) {
+        memcpy(p, E.row[j].chars, E.row[j].size);
+        p += E.row[j].size;
+        *p = '\n';
+        p++;
+    }
+
+    return buf;
+}
+
 /* Open the edtior for reading a file from the disk */
 void editorOpen(char *filename) {
     free(E.filename);
@@ -322,6 +344,20 @@ void editorOpen(char *filename) {
     }
     free(line); // free memory
     fclose(fp); // close the file
+}
+
+/* Save the editor to the disk */
+void editorSave() {
+    if (E.filename == NULL) return;
+
+    int len;
+    char *buf = editorRowsToString(&len);
+
+    int fd = open(E.filename, O_RDWR | O_CREAT, 0644);
+    ftruncate(fd, len);
+    write(fd, buf, len);
+    close(fd);
+    free(buf); // free the memory
 }
 
 /*** Append Buffer ***/
@@ -542,16 +578,22 @@ void editorProcessKeypress() {
     int c = editorReadKey();
 
     switch (c) {
-        
+
         // new line
         case '\r':
             /* TODO */
             break;
 
+            // exit file
         case CTRL_KEY('q'):
             write(STDOUT_FILENO, "\x1b[2J", 4); // clear screen
             write(STDOUT_FILENO, "\x1b[H", 3); // move cursor
             exit(0);
+            break;
+
+            // save file
+        case CTRL_KEY('s'):
+            editorSave();
             break;
 
             // home key
@@ -565,7 +607,7 @@ void editorProcessKeypress() {
                 E.cx = E.screencols - 1;
             break;
 
-        // back space
+            // back space
         case BACKSPACE:
         case CTRL_KEY('h'):
         case DEL_KEY:
@@ -597,12 +639,12 @@ void editorProcessKeypress() {
             editorMoveCursor(c);
             break;
 
-        // control key
+            // control key
         case CTRL_KEY('l'):
         case '\x1b':
             break;
 
-        // otherwise, try to insert a character
+            // otherwise, try to insert a character
         default:
             editorInsertChar(c);
             break;
