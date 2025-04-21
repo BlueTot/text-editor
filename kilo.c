@@ -72,7 +72,7 @@ struct editorConfig E;
 
 void editorSetStatusMessage(const char *fmt, ...);
 void editorRefreshScreen();
-char *editorPrompt(char *prompt);
+char *editorPrompt(char *prompt, void (*callback)(char *, int));
 
 /*** Terminal ***/
 
@@ -535,7 +535,7 @@ void editorOpen(char *filename)
 /* Save the editor to the disk */
 void editorSave() {
     if (E.filename == NULL) {
-        E.filename = editorPrompt("Save as: %s");
+        E.filename = editorPrompt("Save as: %s", NULL);
         if (E.filename == NULL) {
             editorSetStatusMessage("Save aborted");
             return;
@@ -567,11 +567,10 @@ void editorSave() {
 
 /*** Find */
 
-void editorFind()
-{
-    char *query = editorPrompt("Search: %s (ESC to cancel)");
-    if (query == NULL)
+void editorFindCallback(char *query, int key) {
+    if (key == '\r' || key == '\x1b') {
         return;
+    }
 
     int i;
     for (i = 0; i < E.numrows; i++)
@@ -586,8 +585,15 @@ void editorFind()
             break;
         }
     }
+}
 
-    free(query);
+void editorFind()
+{
+    char *query = editorPrompt("Search: %s (ESC to cancel)", editorFindCallback);
+
+    if (query) {
+        free(query);
+    }
 }
 
 /*** Append Buffer ***/
@@ -802,7 +808,7 @@ void editorSetStatusMessage(const char *fmt, ...)
 
 /*** Input ***/
 
-char *editorPrompt(char *prompt) {
+char *editorPrompt(char *prompt, void (*callback)(char *, int)) {
     size_t bufsize = 128;
     char *buf = malloc(bufsize);
 
@@ -818,11 +824,13 @@ char *editorPrompt(char *prompt) {
             if (buflen != 0) buf[--buflen] = '\0';
         } else if (c == '\x1b') {
             editorSetStatusMessage("");
+            if (callback) callback(buf, c);
             free(buf);
             return NULL;
         } else if (c == '\r') {
             if (buflen != 0) {
                 editorSetStatusMessage("");
+                if (callback) callback(buf, c);
                 return buf;
             }
         } else if (!iscntrl(c) && c < 128) {
@@ -833,6 +841,8 @@ char *editorPrompt(char *prompt) {
             buf[buflen++] = c;
             buf[buflen] = '\0';
         }
+
+        if (callback) callback(buf, c);
     }
 }
 
