@@ -38,9 +38,15 @@ enum editorKey {
     PAGE_DOWN
 };
 
-enum editorHighlight { HL_NORMAL = 0, HL_NUMBER, HL_MATCH };
+enum editorHighlight {
+    HL_NORMAL = 0,
+    HL_STRING,
+    HL_NUMBER,
+    HL_MATCH
+};
 
 #define HL_HIGHLIGHT_NUMBERS (1 << 0)
+#define HL_HIGHTLIGHT_STRINGS (1 << 1)
 
 /*** Data ***/
 
@@ -82,7 +88,7 @@ struct editorConfig E;
 char *C_HL_extensions[] = {".c", ".h", ".cpp", NULL};
 
 struct editorSyntax HLDB[] = {
-    {"c", C_HL_extensions, HL_HIGHLIGHT_NUMBERS},
+    {"c", C_HL_extensions, HL_HIGHLIGHT_NUMBERS | HL_HIGHTLIGHT_STRINGS},
 };
 
 #define HLDB_ENTRIES (sizeof(HLDB) / sizeof(HLDB[0]))
@@ -165,44 +171,44 @@ int editorReadKey() {
                 }
                 if (seq[2] == '~') {
                     switch (seq[1]) {
-                    case '1':
-                        return HOME_KEY;
-                    case '3':
-                        return DEL_KEY;
-                    case '4':
-                        return END_KEY;
-                    case '5':
-                        return PAGE_UP;
-                    case '6':
-                        return PAGE_DOWN;
-                    case '7':
-                        return HOME_KEY;
-                    case '8':
-                        return END_KEY;
+                        case '1':
+                            return HOME_KEY;
+                        case '3':
+                            return DEL_KEY;
+                        case '4':
+                            return END_KEY;
+                        case '5':
+                            return PAGE_UP;
+                        case '6':
+                            return PAGE_DOWN;
+                        case '7':
+                            return HOME_KEY;
+                        case '8':
+                            return END_KEY;
                     }
                 }
             } else {
                 switch (seq[1]) {
-                case 'A':
-                    return ARROW_UP;
-                case 'B':
-                    return ARROW_DOWN;
-                case 'C':
-                    return ARROW_RIGHT;
-                case 'D':
-                    return ARROW_LEFT;
-                case 'H':
-                    return HOME_KEY;
-                case 'F':
-                    return END_KEY;
+                    case 'A':
+                        return ARROW_UP;
+                    case 'B':
+                        return ARROW_DOWN;
+                    case 'C':
+                        return ARROW_RIGHT;
+                    case 'D':
+                        return ARROW_LEFT;
+                    case 'H':
+                        return HOME_KEY;
+                    case 'F':
+                        return END_KEY;
                 }
             }
         } else if (seq[0] == '0') {
             switch (seq[1]) {
-            case 'H':
-                return HOME_KEY;
-            case 'F':
-                return END_KEY;
+                case 'H':
+                    return HOME_KEY;
+                case 'F':
+                    return END_KEY;
             }
         }
 
@@ -284,11 +290,36 @@ void editorUpdateSyntax(erow *row) {
         return;
 
     int prev_sep = 1;
+    int in_string = 0;
 
     int i = 0;
     while (i < row->rsize) {
         char c = row->render[i];
         unsigned char prev_hl = (i > 0) ? row->hl[i - 1] : HL_NORMAL;
+
+        // if we have the highlight strings option turned on
+        if (E.syntax->flags & HL_HIGHTLIGHT_STRINGS) {
+            if (in_string) {
+                row->hl[i] = HL_STRING;
+                if (c == '\\' && i + 1 < row->rsize) {
+                    row->hl[i + 1] = HL_STRING;
+                    i += 2;
+                    continue;
+                }
+                if (c == in_string)
+                    in_string = 0;
+                i++;
+                prev_sep = 1;
+                continue;
+            } else {
+                if (c == '"' || c == '\'') {
+                    in_string = c;
+                    row->hl[i] = HL_STRING;
+                    i++;
+                    continue;
+                }
+            }
+        }
 
         // if we have the highlight numbers option turned on
         if (E.syntax->flags & HL_HIGHLIGHT_NUMBERS) {
@@ -308,12 +339,14 @@ void editorUpdateSyntax(erow *row) {
 
 int editorSyntaxToColor(int hl) {
     switch (hl) {
-    case HL_NUMBER:
-        return 31;
-    case HL_MATCH:
-        return 34;
-    default:
-        return 37;
+        case HL_STRING:
+            return 35;
+        case HL_NUMBER:
+            return 31;
+        case HL_MATCH:
+            return 34;
+        default:
+            return 37;
     }
 }
 
@@ -932,30 +965,30 @@ void editorMoveCursor(int key) {
     erow *row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
 
     switch (key) {
-    case ARROW_LEFT:
-        if (E.cx != 0) {
-            E.cx--;
-        } else if (E.cy > 0) {
-            E.cy--;
-            E.cx = E.row[E.cy].size;
-        }
-        break;
-    case ARROW_RIGHT:
-        if (row && E.cx < row->size) {
-            E.cx++;
-        } else if (row && E.cx == row->size) {
-            E.cy++;
-            E.cx = 0;
-        }
-        break;
-    case ARROW_UP:
-        if (E.cy != 0)
-            E.cy--;
-        break;
-    case ARROW_DOWN:
-        if (E.cy < E.numrows)
-            E.cy++;
-        break;
+        case ARROW_LEFT:
+            if (E.cx != 0) {
+                E.cx--;
+            } else if (E.cy > 0) {
+                E.cy--;
+                E.cx = E.row[E.cy].size;
+            }
+            break;
+        case ARROW_RIGHT:
+            if (row && E.cx < row->size) {
+                E.cx++;
+            } else if (row && E.cx == row->size) {
+                E.cy++;
+                E.cx = 0;
+            }
+            break;
+        case ARROW_UP:
+            if (E.cy != 0)
+                E.cy--;
+            break;
+        case ARROW_DOWN:
+            if (E.cy < E.numrows)
+                E.cy++;
+            break;
     }
 
     row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
@@ -973,87 +1006,87 @@ void editorProcessKeypress() {
 
     switch (c) {
 
-    // new line
-    case '\r':
-        editorInsertNewLine();
-        break;
+        // new line
+        case '\r':
+            editorInsertNewLine();
+            break;
 
-        // exit file
-    case CTRL_KEY('q'):
-        if (E.dirty && quit_times > 0) {
-            editorSetStatusMessage("WARNING!!! File has unsaved changes. "
-                                   "Press Ctrl-Q %d more times to quit.",
-                                   quit_times);
-            quit_times--;
-            return;
-        }
-        write(STDOUT_FILENO, "\x1b[2J", 4); // clear screen
-        write(STDOUT_FILENO, "\x1b[H", 3);  // move cursor
-        exit(0);
-        break;
+            // exit file
+        case CTRL_KEY('q'):
+            if (E.dirty && quit_times > 0) {
+                editorSetStatusMessage("WARNING!!! File has unsaved changes. "
+                                       "Press Ctrl-Q %d more times to quit.",
+                                       quit_times);
+                quit_times--;
+                return;
+            }
+            write(STDOUT_FILENO, "\x1b[2J", 4); // clear screen
+            write(STDOUT_FILENO, "\x1b[H", 3);  // move cursor
+            exit(0);
+            break;
 
-        // save file
-    case CTRL_KEY('s'):
-        editorSave();
-        break;
+            // save file
+        case CTRL_KEY('s'):
+            editorSave();
+            break;
 
-        // home key
-    case HOME_KEY:
-        E.cx = 0;
-        break;
+            // home key
+        case HOME_KEY:
+            E.cx = 0;
+            break;
 
-        // end key
-    case END_KEY:
-        if (E.cy < E.numrows)
-            E.cx = E.screencols - 1;
-        break;
+            // end key
+        case END_KEY:
+            if (E.cy < E.numrows)
+                E.cx = E.screencols - 1;
+            break;
 
-    // find key
-    case CTRL_KEY('f'):
-        editorFind();
-        break;
+        // find key
+        case CTRL_KEY('f'):
+            editorFind();
+            break;
 
-        // back space
-    case BACKSPACE:
-    case CTRL_KEY('h'):
-    case DEL_KEY:
-        if (c == DEL_KEY)
-            editorMoveCursor(ARROW_RIGHT);
-        editorDelChar();
-        break;
+            // back space
+        case BACKSPACE:
+        case CTRL_KEY('h'):
+        case DEL_KEY:
+            if (c == DEL_KEY)
+                editorMoveCursor(ARROW_RIGHT);
+            editorDelChar();
+            break;
 
-        // page up or page down keys entered
-    case PAGE_UP: // fall down
-    case PAGE_DOWN: {
-        if (c == PAGE_UP) {
-            E.cy = E.rowoff;
-        } else if (c == PAGE_DOWN) {
-            E.cy = E.rowoff + E.screenrows - 1;
-        }
+            // page up or page down keys entered
+        case PAGE_UP: // fall down
+        case PAGE_DOWN: {
+            if (c == PAGE_UP) {
+                E.cy = E.rowoff;
+            } else if (c == PAGE_DOWN) {
+                E.cy = E.rowoff + E.screenrows - 1;
+            }
 
-        int times = E.screenrows;
-        while (times--) {
-            editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
-        }
-    } break;
+            int times = E.screenrows;
+            while (times--) {
+                editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
+            }
+        } break;
 
-        // when we match w/a/s/d
-    case ARROW_UP:   // fall down
-    case ARROW_DOWN: // fall down
-    case ARROW_LEFT: // fall down
-    case ARROW_RIGHT:
-        editorMoveCursor(c);
-        break;
+            // when we match w/a/s/d
+        case ARROW_UP:   // fall down
+        case ARROW_DOWN: // fall down
+        case ARROW_LEFT: // fall down
+        case ARROW_RIGHT:
+            editorMoveCursor(c);
+            break;
 
-        // control key
-    case CTRL_KEY('l'):
-    case '\x1b':
-        break;
+            // control key
+        case CTRL_KEY('l'):
+        case '\x1b':
+            break;
 
-        // otherwise, try to insert a character
-    default:
-        editorInsertChar(c);
-        break;
+            // otherwise, try to insert a character
+        default:
+            editorInsertChar(c);
+            break;
     }
 
     quit_times = KILO_QUIT_TIMES;
