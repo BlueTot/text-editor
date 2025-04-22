@@ -38,6 +38,8 @@ enum editorKey {
     PAGE_DOWN
 };
 
+enum editorHighlight { HL_NORMAL = 0, HL_NUMBER };
+
 /*** Data ***/
 
 typedef struct erow {
@@ -45,6 +47,7 @@ typedef struct erow {
     int rsize;
     char *chars;
     char *render;
+    unsigned char *hl;
 } erow;
 
 struct editorConfig {
@@ -248,6 +251,29 @@ int getWindowSize(int *rows, int *cols) {
     }
 }
 
+/*** Syntax Highlighting ***/
+
+void editorUpdateSyntax(erow *row) {
+    row->hl = realloc(row->hl, row->rsize);
+    memset(row->hl, HL_NORMAL, row->rsize);
+
+    int i;
+    for (i = 0; i < row->rsize; i++) {
+        if (isdigit(row->render[i])) {
+            row->hl[i] = HL_NUMBER;
+        }
+    }
+}
+
+int editorSyntaxToColor(int hl) {
+    switch (hl) {
+    case HL_NUMBER:
+        return 31;
+    default:
+        return 37;
+    }
+}
+
 /*** Row Operations ***/
 
 int editorRowCxToRx(erow *row, int cx) {
@@ -299,6 +325,8 @@ void editorUpdateRow(erow *row) {
     }
     row->render[idx] = '\0';
     row->rsize = idx;
+
+    editorUpdateSyntax(row);
 }
 
 /* Function to insert row to editor at a given position */
@@ -316,6 +344,7 @@ void editorInsertRow(int at, char *s, size_t len) {
 
     E.row[at].rsize = 0;
     E.row[at].render = NULL;
+    E.row[at].hl = NULL;         // syntax highlighting
     editorUpdateRow(&E.row[at]); // update the row by populating render string
 
     E.numrows++;
@@ -326,6 +355,7 @@ void editorInsertRow(int at, char *s, size_t len) {
 void editorFreeRow(erow *row) {
     free(row->render);
     free(row->chars);
+    free(row->hl);
 }
 
 /* Function to delete a row (backspacing at beginning of row) */
@@ -647,7 +677,37 @@ void editorDrawRows(struct abuf *ab) {
                 len = 0;
             if (len > E.screencols)
                 len = E.screencols;
-            abAppend(ab, &E.row[filerow].render[E.coloff], len);
+
+            // character array
+            char *c = &E.row[filerow].render[E.coloff];
+
+            // highlighting array
+            unsigned char *hl = &E.row[filerow].hl[E.coloff];
+            int current_color = -1;
+            int j;
+            for (j = 0; j < len; j++) {
+                // if the character has normal color
+                if (hl[j] == HL_NORMAL) {
+                    // if the previous color is not normal
+                    if (current_color != -1) {
+                        abAppend(ab, "\x1b[39m", 5); // clear color
+                        current_color = -1;
+                    }
+                    abAppend(ab, &c[j], 1);
+                } else { // otherwise it is colored
+                    int color = editorSyntaxToColor(hl[j]);
+                    if (color !=
+                        current_color) {       // if previous color is different
+                        current_color = color; // change the color
+                        char buf[16];
+                        int clen = snprintf(buf, sizeof(buf), "\x1b[%dm",
+                                            color); // write to buffer
+                        abAppend(ab, buf, clen);
+                    }
+                    abAppend(ab, &c[j], 1); // append character
+                }
+            }
+            abAppend(ab, "\x1b[39m", 5);
         }
 
         // erases part of line to the right of the cursor
