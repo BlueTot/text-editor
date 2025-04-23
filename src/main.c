@@ -1,4 +1,7 @@
 #include "data.h"
+#include "input.h"
+#include "output.h"
+#include "terminal.h"
 
 /* Start up the editor by initialising the struct */
 void initEditor() {

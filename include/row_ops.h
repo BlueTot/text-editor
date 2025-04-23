@@ -1,5 +1,8 @@
 #pragma once
 #include "data.h"
+#include "syntax.h"
+#include <stdlib.h>
+#include <string.h>
 
 int editorRowCxToRx(erow *row, int cx);
 int editorRowRxToCx(erow *row, int rx);
