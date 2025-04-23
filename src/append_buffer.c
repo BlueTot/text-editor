@@ -1,9 +1,4 @@
-struct abuf {
-    char *b;
-    int len;
-};
-
-#define ABUF_INIT {NULL, 0}
+#include "append_buffer.h"
 
 /* Method to append a string to an the append buffer */
 void abAppend(struct abuf *ab, const char *s, int len) {
