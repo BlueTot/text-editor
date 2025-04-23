@@ -1,3 +1,6 @@
+#include "data.h"
+#include "unistd.h"
+
 char *editorPrompt(char *prompt, void (*callback)(char *, int)) {
     size_t bufsize = 128;
     char *buf = malloc(bufsize);

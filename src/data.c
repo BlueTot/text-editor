@@ -1,38 +1,16 @@
-struct editorSyntax {
-    char *filetype;
-    char **filematch;
-    char **keywords;
-    char *singleline_comment_start;
-    char *multiline_comment_start;
-    char *multiline_comment_end;
-    int flags;
-};
-
-typedef struct erow {
-    int idx;
-    int size;
-    int rsize;
-    char *chars;
-    char *render;
-    unsigned char *hl;
-    int hl_open_comment;
-} erow;
-
-struct editorConfig {
-    int cx, cy; // cursor x, y, infile
-    int rx;
-    int rowoff; // row offset in file
-    int coloff; // column offset in file
-    int screenrows;
-    int screencols;
-    int numrows;
-    erow *row; // the current row struct
-    int dirty;
-    char *filename; // filename
-    char statusmsg[80];
-    time_t statusmsg_time;
-    struct editorSyntax *syntax;
-    struct termios orig_termios; // original terminal settings
-};
+#include "data.h"
 
 struct editorConfig E;
+
+char *C_HL_extensions[] = {".c", ".h", ".cpp", NULL};
+char *C_HL_keywords[] = {"switch",    "if",      "while",   "for",    "break",
+                         "continue",  "return",  "else",    "struct", "union",
+                         "typedef",   "static",  "enum",    "class",  "case",
+
+                         "int|",      "long|",   "double|", "float|", "char|",
+                         "unsigned|", "signed|", "void|",   NULL};
+
+struct editorSyntax HLDB[] = {
+    {"c", C_HL_extensions, C_HL_keywords, "//", "/*", "*/",
+     HL_HIGHLIGHT_NUMBERS | HL_HIGHTLIGHT_STRINGS},
+};

@@ -1,3 +1,5 @@
+#include "data.h"
+
 /* Function to insert character */
 void editorInsertChar(int c) {
     if (E.cy == E.numrows) {

@@ -1,3 +1,5 @@
+#include "data.h"
+
 /* Start up the editor by initialising the struct */
 void initEditor() {
     E.cx = 0;

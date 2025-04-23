@@ -1,3 +1,10 @@
+#include "data.h"
+#include <ctype.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <unistd.h>
+
 /* Convert editor rows to string, returns pointer to string
  * Must free memory allocated */
 char *editorRowsToString(int *buflen) {

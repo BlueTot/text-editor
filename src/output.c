@@ -1,3 +1,8 @@
+#include "append_buffer.h"
+#include "data.h"
+#include "stdarg.h"
+#include "unistd.h"
+
 /* Scroll through the editor */
 void editorScroll() {
     E.rx = 0;

@@ -1,3 +1,6 @@
+#include "data.h"
+#include <stdlib.h>
+
 void editorFindCallback(char *query, int key) {
     static int last_match = -1;
     static int direction = 1;

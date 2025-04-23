@@ -1,3 +1,11 @@
+#include "data.h"
+#include "errno.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/ioctl.h>
+#include <termios.h>
+#include <unistd.h>
+
 /* Function to print error message and exit */
 void die(const char *s) {
     write(STDOUT_FILENO, "\x1b[2J", 4); // clear the screen
