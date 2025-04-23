@@ -1,5 +1,4 @@
-#include "data.h"
-#include <stdlib.h>
+#include "find.h"
 
 void editorFindCallback(char *query, int key) {
     static int last_match = -1;

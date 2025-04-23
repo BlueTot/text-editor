@@ -1,5 +1,4 @@
-#include "data.h"
-#include "unistd.h"
+#include "input.h"
 
 char *editorPrompt(char *prompt, void (*callback)(char *, int)) {
     size_t bufsize = 128;

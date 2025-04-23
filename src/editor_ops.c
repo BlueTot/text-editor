@@ -1,4 +1,4 @@
-#include "data.h"
+#include "editor_ops.h"
 
 /* Function to insert character */
 void editorInsertChar(int c) {

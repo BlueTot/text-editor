@@ -1,4 +1,4 @@
-#include "data.h"
+#include "row_ops.h"
 
 int editorRowCxToRx(erow *row, int cx) {
     int rx = 0;

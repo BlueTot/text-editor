@@ -1,7 +1,4 @@
-#include "append_buffer.h"
-#include "data.h"
-#include "stdarg.h"
-#include "unistd.h"
+#include "output.h"
 
 /* Scroll through the editor */
 void editorScroll() {
