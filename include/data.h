@@ -22,6 +22,11 @@ typedef struct erow {
     int hl_open_comment;
 } erow;
 
+enum editorMode {
+    MD_NORMAL,
+    MD_INSERT
+};
+
 struct editorConfig {
     int cx, cy; // cursor x, y, infile
     int rx;
@@ -37,6 +42,7 @@ struct editorConfig {
     time_t statusmsg_time;
     struct editorSyntax *syntax;
     struct termios orig_termios; // original terminal settings
+    enum editorMode mode;        // the editor mode (normal, insert, etc.)
 };
 
 extern struct editorConfig E;
