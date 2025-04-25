@@ -48,20 +48,12 @@ void editorMoveCursor(int key) {
 
     switch (key) {
         case ARROW_LEFT:
-            if (E.cx != 0) {
+            if (E.cx != 0)
                 E.cx--;
-            } else if (E.cy > 0) {
-                E.cy--;
-                E.cx = E.row[E.cy].size;
-            }
             break;
         case ARROW_RIGHT:
-            if (row && E.cx < row->size) {
+            if (row && E.cx < row->size)
                 E.cx++;
-            } else if (row && E.cx == row->size) {
-                E.cy++;
-                E.cx = 0;
-            }
             break;
         case ARROW_UP:
             if (E.cy != 0)
@@ -80,20 +72,23 @@ void editorMoveCursor(int key) {
     }
 }
 
-/* Function to process key from user */
-void editorProcessKeypress() {
+void editorProcessNormalKeypress(int c) {
     static int quit_times = KILO_QUIT_TIMES;
-
-    int c = editorReadKey();
 
     switch (c) {
 
-        // new line
-        case '\r':
-            editorInsertNewLine();
+        // insert before cursor
+        case 'i':
+            E.mode = MD_INSERT;
             break;
 
-            // exit file
+        // insert after cursor
+        case 'a':
+            editorMoveCursor(ARROW_RIGHT);
+            E.mode = MD_INSERT;
+            break;
+
+        // quit
         case CTRL_KEY('q'):
             if (E.dirty && quit_times > 0) {
                 editorSetStatusMessage("WARNING!!! File has unsaved changes. "
@@ -107,20 +102,20 @@ void editorProcessKeypress() {
             exit(0);
             break;
 
-            // save file
+        // save file
         case CTRL_KEY('s'):
             editorSave();
             break;
 
-            // home key
-        case HOME_KEY:
+        // home key
+        case '0':
             E.cx = 0;
             break;
 
-            // end key
-        case END_KEY:
+        // end key
+        case '$':
             if (E.cy < E.numrows)
-                E.cx = E.screencols - 1;
+                E.cx = E.row[E.cy].size;
             break;
 
         // find key
@@ -128,16 +123,14 @@ void editorProcessKeypress() {
             editorFind();
             break;
 
-            // back space
+        // back space
         case BACKSPACE:
         case CTRL_KEY('h'):
         case DEL_KEY:
-            if (c == DEL_KEY)
-                editorMoveCursor(ARROW_RIGHT);
-            editorDelChar();
+            editorMoveCursor(ARROW_LEFT);
             break;
 
-            // page up or page down keys entered
+        // page up or page down keys entered
         case PAGE_UP: // fall down
         case PAGE_DOWN: {
             if (c == PAGE_UP) {
@@ -152,7 +145,67 @@ void editorProcessKeypress() {
             }
         } break;
 
-            // when we match w/a/s/d
+        // move up
+        case ARROW_UP:
+        case 'k':
+            editorMoveCursor(ARROW_UP);
+            break;
+
+        // move down
+        case ARROW_DOWN:
+        case 'j':
+            editorMoveCursor(ARROW_DOWN);
+            break;
+
+        // move left
+        case ARROW_LEFT:
+        case 'h':
+            editorMoveCursor(ARROW_LEFT);
+            break;
+
+        // move right
+        case ARROW_RIGHT:
+        case 'l':
+            editorMoveCursor(ARROW_RIGHT);
+            break;
+
+        // control key
+        case CTRL_KEY('l'):
+        case '\x1b':
+            break;
+
+        // otherwise
+        default:
+            break;
+    }
+
+    quit_times = KILO_QUIT_TIMES;
+}
+
+void editorProcessInsertKeypress(int c) {
+
+    switch (c) {
+
+        // escape key
+        case '\x1b':
+            E.mode = MD_NORMAL;
+            break;
+
+        // new line
+        case '\r':
+            editorInsertNewLine();
+            break;
+
+        // back space
+        case BACKSPACE:
+        case CTRL_KEY('h'):
+        case DEL_KEY:
+            if (c == DEL_KEY)
+                editorMoveCursor(ARROW_RIGHT);
+            editorDelChar();
+            break;
+
+        // movement keys
         case ARROW_UP:   // fall down
         case ARROW_DOWN: // fall down
         case ARROW_LEFT: // fall down
@@ -160,16 +213,23 @@ void editorProcessKeypress() {
             editorMoveCursor(c);
             break;
 
-            // control key
-        case CTRL_KEY('l'):
-        case '\x1b':
-            break;
-
-            // otherwise, try to insert a character
+        // otherwise, try to insert a character
         default:
             editorInsertChar(c);
             break;
     }
+}
 
-    quit_times = KILO_QUIT_TIMES;
+/* Function to process key from user */
+void editorProcessKeypress() {
+    int c = editorReadKey();
+
+    switch (E.mode) {
+        case MD_NORMAL:
+            editorProcessNormalKeypress(c);
+            break;
+        case MD_INSERT:
+            editorProcessInsertKeypress(c);
+            break;
+    }
 }

@@ -1,9 +1,9 @@
-/*** Includes ***/
+/sdfasdfj*eeaabababababbabee*ee*ee Ieenceeeddddludes ***/ee enumeeee  abccdefghijkksdflcd      `eeeeeeeeeeeeaaaa
 
-#define _DEFAULT_SOURCE
+#aaaaaaaaaaaaaaaadefine _DEFAULT_SOURCE if
 #define _BSD_SOURCE
 #define _GNU_SOURCE
-
+aa
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -17,7 +17,7 @@
 #include <time.h>
 #include <unistd.h>
 
-/*** Defines ***/
+if if if/*** Defines ***/
 
 #define KILO_VERSION "0.0.1"
 #define KILO_TAB_STOP 8
@@ -95,7 +95,7 @@ void disableRawMode() {
 void enableRawMode() {
 
     // get terminal settings and check for error
-    if (tcgetattr(STDIN_FILENO, &E.orig_termios) == -1) {
+eee    if (tcgetattr(STDIN_FILENO, &E.orig_termios) == -1) {
         die("tcgetattr");
     }
 

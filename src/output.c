@@ -16,13 +16,19 @@ void editorScroll() {
         E.rowoff = E.cy - E.screenrows + 1;
     }
     // scroll right
-    if (E.cx - E.coloff) {
-        E.coloff = E.rx;
+    if (E.cx - E.screencols >= 0) {
+        E.coloff = E.cx - E.screencols;
+    } else {
+        E.coloff = 0;
     }
+    // if (E.cx - E.coloff) {
+    //     E.coloff = E.rx;
+    // }
     // scroll left
-    if (E.cx >= E.coloff + E.screencols) {
-        E.coloff = E.rx - E.screencols + 1;
-    }
+    // if (E.cx )
+    // if (E.cx >= E.coloff + E.screencols) {
+    //     E.coloff = E.rx - E.screencols + 1;
+    // }
 }
 
 /* Function to draw rows to the screen */
@@ -126,7 +132,8 @@ void editorDrawStatusBar(struct abuf *ab) {
 
     // make buffer for status bar, and line number status bar
     char status[80], rstatus[80];
-    int len = snprintf(status, sizeof(status), "%.20s - %d lines %s",
+    int len = snprintf(status, sizeof(status), " [%s] | %.20s - %d lines %s",
+                       E.mode == MD_NORMAL ? "NORMAL" : "INSERT",
                        E.filename ? E.filename : "[No Name]", E.numrows,
                        E.dirty ? "(modified)" : "");
     int rlen =
@@ -181,6 +188,12 @@ void editorRefreshScreen() {
     snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (E.cy - E.rowoff) + 1,
              (E.rx - E.coloff) + 1);
     abAppend(&ab, buf, strlen(buf));
+
+    if (E.mode == MD_INSERT) {
+        abAppend(&ab, "\x1b[5 q", 6);
+    } else {
+        abAppend(&ab, "\x1b[2 q", 6);
+    }
 
     abAppend(&ab, "\x1b[?25h", 6); // cursor show
 
