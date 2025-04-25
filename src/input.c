@@ -118,14 +118,14 @@ void editorProcessNormalKeypress(int c) {
             break;
 
             // home key
-        case HOME_KEY:
+        case '0':
             E.cx = 0;
             break;
 
             // end key
-        case END_KEY:
+        case '$':
             if (E.cy < E.numrows)
-                E.cx = E.screencols - 1;
+                E.cx = E.row[E.cy].size - 1;
             break;
 
         // find key
@@ -193,21 +193,21 @@ void editorProcessInsertKeypress(int c) {
             editorInsertNewLine();
             break;
 
-            // home key
-        case HOME_KEY:
-            E.cx = 0;
-            break;
+            //     // home key
+            // case HOME_KEY:
+            //     E.cx = 0;
+            //     break;
 
-            // end key
-        case END_KEY:
-            if (E.cy < E.numrows)
-                E.cx = E.screencols - 1;
-            break;
+            //     // end key
+            // case END_KEY:
+            //     if (E.cy < E.numrows)
+            //         E.cx = E.screencols - 1;
+            //     break;
 
-        // find key
-        case CTRL_KEY('f'):
-            editorFind();
-            break;
+            // // find key
+            // case CTRL_KEY('f'):
+            //     editorFind();
+            //     break;
 
             // back space
         case BACKSPACE:
@@ -218,20 +218,20 @@ void editorProcessInsertKeypress(int c) {
             editorDelChar();
             break;
 
-            // page up or page down keys entered
-        case PAGE_UP: // fall down
-        case PAGE_DOWN: {
-            if (c == PAGE_UP) {
-                E.cy = E.rowoff;
-            } else if (c == PAGE_DOWN) {
-                E.cy = E.rowoff + E.screenrows - 1;
-            }
+            //     // page up or page down keys entered
+            // case PAGE_UP: // fall down
+            // case PAGE_DOWN: {
+            //     if (c == PAGE_UP) {
+            //         E.cy = E.rowoff;
+            //     } else if (c == PAGE_DOWN) {
+            //         E.cy = E.rowoff + E.screenrows - 1;
+            //     }
 
-            int times = E.screenrows;
-            while (times--) {
-                editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
-            }
-        } break;
+            //     int times = E.screenrows;
+            //     while (times--) {
+            //         editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
+            //     }
+            // } break;
 
             // when we match w/a/s/d
         case ARROW_UP:   // fall down
