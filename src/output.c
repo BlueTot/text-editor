@@ -130,7 +130,8 @@ void editorDrawStatusBar(struct abuf *ab) {
 
     // make buffer for status bar, and line number status bar
     char status[80], rstatus[80];
-    int len = snprintf(status, sizeof(status), "%.20s - %d lines %s",
+    int len = snprintf(status, sizeof(status), " [%s] | %.20s - %d lines %s",
+                       E.mode == MD_NORMAL ? "NORMAL" : "INSERT",
                        E.filename ? E.filename : "[No Name]", E.numrows,
                        E.dirty ? "(modified)" : "");
     int rlen =

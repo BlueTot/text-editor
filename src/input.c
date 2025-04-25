@@ -87,12 +87,10 @@ void editorProcessNormalKeypress(int c) {
 
     switch (c) {
 
-            // // new line
-            // case '\r':
-            //     editorInsertNewLine();
-            //     break;
+        case 'i':
+            E.mode = MD_INSERT;
+            break;
 
-            // exit file
         case CTRL_KEY('q'):
             if (E.dirty && quit_times > 0) {
                 editorSetStatusMessage("WARNING!!! File has unsaved changes. "
@@ -178,6 +176,10 @@ void editorProcessInsertKeypress(int c) {
 
     switch (c) {
 
+        case '\x1b':
+            E.mode = MD_NORMAL;
+            break;
+
         // new line
         case '\r':
             editorInsertNewLine();
@@ -231,11 +233,6 @@ void editorProcessInsertKeypress(int c) {
             editorMoveCursor(c);
             break;
 
-            // control key
-        case CTRL_KEY('l'):
-        case '\x1b':
-            break;
-
             // otherwise, try to insert a character
         default:
             editorInsertChar(c);
@@ -257,92 +254,4 @@ void editorProcessKeypress() {
             editorProcessInsertKeypress(c);
             break;
     }
-
-    // switch (c) {
-
-    //     // new line
-    //     case '\r':
-    //         editorInsertNewLine();
-    //         break;
-
-    //         // exit file
-    //     case CTRL_KEY('q'):
-    //         if (E.dirty && quit_times > 0) {
-    //             editorSetStatusMessage("WARNING!!! File has unsaved changes.
-    //             "
-    //                                    "Press Ctrl-Q %d more times to quit.",
-    //                                    quit_times);
-    //             quit_times--;
-    //             return;
-    //         }
-    //         write(STDOUT_FILENO, "\x1b[2J", 4); // clear screen
-    //         write(STDOUT_FILENO, "\x1b[H", 3);  // move cursor
-    //         exit(0);
-    //         break;
-
-    //         // save file
-    //     case CTRL_KEY('s'):
-    //         editorSave();
-    //         break;
-
-    //         // home key
-    //     case HOME_KEY:
-    //         E.cx = 0;
-    //         break;
-
-    //         // end key
-    //     case END_KEY:
-    //         if (E.cy < E.numrows)
-    //             E.cx = E.screencols - 1;
-    //         break;
-
-    //     // find key
-    //     case CTRL_KEY('f'):
-    //         editorFind();
-    //         break;
-
-    //         // back space
-    //     case BACKSPACE:
-    //     case CTRL_KEY('h'):
-    //     case DEL_KEY:
-    //         if (c == DEL_KEY)
-    //             editorMoveCursor(ARROW_RIGHT);
-    //         editorDelChar();
-    //         break;
-
-    //         // page up or page down keys entered
-    //     case PAGE_UP: // fall down
-    //     case PAGE_DOWN: {
-    //         if (c == PAGE_UP) {
-    //             E.cy = E.rowoff;
-    //         } else if (c == PAGE_DOWN) {
-    //             E.cy = E.rowoff + E.screenrows - 1;
-    //         }
-
-    //         int times = E.screenrows;
-    //         while (times--) {
-    //             editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
-    //         }
-    //     } break;
-
-    //         // when we match w/a/s/d
-    //     case ARROW_UP:   // fall down
-    //     case ARROW_DOWN: // fall down
-    //     case ARROW_LEFT: // fall down
-    //     case ARROW_RIGHT:
-    //         editorMoveCursor(c);
-    //         break;
-
-    //         // control key
-    //     case CTRL_KEY('l'):
-    //     case '\x1b':
-    //         break;
-
-    //         // otherwise, try to insert a character
-    //     default:
-    //         editorInsertChar(c);
-    //         break;
-    // }
-
-    // quit_times = KILO_QUIT_TIMES;
 }
