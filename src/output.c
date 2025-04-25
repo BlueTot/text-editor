@@ -16,13 +16,17 @@ void editorScroll() {
         E.rowoff = E.cy - E.screenrows + 1;
     }
     // scroll right
-    if (E.cx - E.coloff) {
-        E.coloff = E.rx;
+    if (E.cx - E.screencols >= 0) {
+        E.coloff = E.cx - E.screencols;
     }
+    // if (E.cx - E.coloff) {
+    //     E.coloff = E.rx;
+    // }
     // scroll left
-    if (E.cx >= E.coloff + E.screencols) {
-        E.coloff = E.rx - E.screencols + 1;
-    }
+    // if (E.cx )
+    // if (E.cx >= E.coloff + E.screencols) {
+    //     E.coloff = E.rx - E.screencols + 1;
+    // }
 }
 
 /* Function to draw rows to the screen */
