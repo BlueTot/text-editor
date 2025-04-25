@@ -73,8 +73,9 @@ void editorDrawRows(struct abuf *ab) {
 
             // highlighting array
             unsigned char *hl = &E.row[filerow].hl[E.coloff];
-            int current_color = -1;
-            int j;
+            int current_color = -1; // the current colour
+            int j;                  // the rendering column index
+
             for (j = 0; j < len; j++) {
 
                 // selection coloring
@@ -116,6 +117,8 @@ void editorDrawRows(struct abuf *ab) {
                     }
                     abAppend(ab, &c[j], 1); // append character
                 }
+
+                abAppend(ab, "\x1b[49m", 5); // clear background
             }
             abAppend(ab, "\x1b[39m", 5); // clear color
         }
