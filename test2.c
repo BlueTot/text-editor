@@ -95,7 +95,7 @@ void disableRawMode() {
 void enableRawMode() {
 
     // get terminal settings and check for error
-    if (tcgetattr(STDIN_FILENO, &E.orig_termios) == -1) {
+eee    if (tcgetattr(STDIN_FILENO, &E.orig_termios) == -1) {
         die("tcgetattr");
     }
 
