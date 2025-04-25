@@ -187,6 +187,12 @@ void editorRefreshScreen() {
              (E.rx - E.coloff) + 1);
     abAppend(&ab, buf, strlen(buf));
 
+    if (E.mode == MD_INSERT) {
+        abAppend(&ab, "\x1b[5 q", 6);
+    } else {
+        abAppend(&ab, "\x1b[2 q", 6);
+    }
+
     abAppend(&ab, "\x1b[?25h", 6); // cursor show
 
     write(STDOUT_FILENO, ab.b, ab.len); // write the dynamic string to screen

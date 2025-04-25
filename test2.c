@@ -17,7 +17,7 @@
 #include <time.h>
 #include <unistd.h>
 
-/*** Defines ***/
+if if if/*** Defines ***/
 
 #define KILO_VERSION "0.0.1"
 #define KILO_TAB_STOP 8
