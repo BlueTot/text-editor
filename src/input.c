@@ -87,10 +87,18 @@ void editorProcessNormalKeypress(int c) {
 
     switch (c) {
 
+        // insert before cursor
         case 'i':
             E.mode = MD_INSERT;
             break;
 
+        // insert after cursor
+        case 'a':
+            editorMoveCursor(ARROW_RIGHT);
+            E.mode = MD_INSERT;
+            break;
+
+        // quit
         case CTRL_KEY('q'):
             if (E.dirty && quit_times > 0) {
                 editorSetStatusMessage("WARNING!!! File has unsaved changes. "

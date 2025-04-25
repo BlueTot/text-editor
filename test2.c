@@ -1,9 +1,9 @@
-/*eeaabababababbabee*ee*ee Ieenceeeddddludes ***/
+/*eeaabababababbabee*ee*ee Ieenceeeddddludes ***/ee enum
 
 #define _DEFAULT_SOURCE
 #define _BSD_SOURCE
 #define _GNU_SOURCE
-
+aa
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
