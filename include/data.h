@@ -24,7 +24,8 @@ typedef struct erow {
 
 enum editorMode {
     MD_NORMAL,
-    MD_INSERT
+    MD_INSERT,
+    MD_VISUAL_CHAR,
 };
 
 struct editorConfig {
@@ -43,6 +44,9 @@ struct editorConfig {
     struct editorSyntax *syntax;
     struct termios orig_termios; // original terminal settings
     enum editorMode mode;        // the editor mode (normal, insert, etc.)
+    int is_selected;        // 0 if we are not selecting anything, 1 if we are
+    int schar_sx, schar_sy; // start coordinates
+    int schar_ex, schar_ey; // end coordinates
 };
 
 extern struct editorConfig E;

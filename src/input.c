@@ -72,6 +72,42 @@ void editorMoveCursor(int key) {
     }
 }
 
+int compareCoord(int sx, int sy, int ex, int ey) {
+    if (sy < ey) {
+        return 1;
+    } else if (sy > ey) {
+        return -1;
+    } else {
+        if (sx < ex) {
+            return 1;
+        } else if (sx > ex) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+}
+
+void swap(int *a, int *b) {
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
+void editorMoveVisualSelection(int key) {
+
+    // move the cursor and update the new end point
+    editorMoveCursor(key);
+    E.schar_ex = E.cx;
+    E.schar_ey = E.cy;
+
+    // if the end is before the start, swap them
+    if (compareCoord(E.schar_sx, E.schar_sy, E.schar_ex, E.schar_ey) == -1) {
+        swap(&E.schar_sx, &E.schar_ex);
+        swap(&E.schar_sy, &E.schar_ey);
+    }
+}
+
 void editorProcessNormalKeypress(int c) {
     static int quit_times = KILO_QUIT_TIMES;
 
@@ -86,6 +122,16 @@ void editorProcessNormalKeypress(int c) {
         case 'a':
             editorMoveCursor(ARROW_RIGHT);
             E.mode = MD_INSERT;
+            break;
+
+        // enter visual character mode
+        case 'v':
+            E.mode = MD_VISUAL_CHAR;
+            E.is_selected = 1;
+            E.schar_sx = E.cx;
+            E.schar_sy = E.cy;
+            E.schar_ex = E.cx;
+            E.schar_ey = E.cy;
             break;
 
         // quit
@@ -220,6 +266,42 @@ void editorProcessInsertKeypress(int c) {
     }
 }
 
+void editorProcessVisualCharKeypress(int c) {
+
+    switch (c) {
+
+        // escape key
+        case '\x1b':
+            E.mode = MD_NORMAL;
+            E.is_selected = 0;
+            break;
+
+        // move up
+        case ARROW_UP:
+        case 'k':
+            editorMoveVisualSelection(ARROW_UP);
+            break;
+
+        // move down
+        case ARROW_DOWN:
+        case 'j':
+            editorMoveVisualSelection(ARROW_DOWN);
+            break;
+
+        // move left
+        case ARROW_LEFT:
+        case 'h':
+            editorMoveVisualSelection(ARROW_LEFT);
+            break;
+
+        // move right
+        case ARROW_RIGHT:
+        case 'l':
+            editorMoveVisualSelection(ARROW_RIGHT);
+            break;
+    }
+}
+
 /* Function to process key from user */
 void editorProcessKeypress() {
     int c = editorReadKey();
@@ -230,6 +312,9 @@ void editorProcessKeypress() {
             break;
         case MD_INSERT:
             editorProcessInsertKeypress(c);
+            break;
+        case MD_VISUAL_CHAR:
+            editorProcessVisualCharKeypress(c);
             break;
     }
 }
