@@ -26,6 +26,17 @@ void editorScroll() {
 
 /* Function to draw rows to the screen */
 void editorDrawRows(struct abuf *ab) {
+
+    // swap the selection endpoints if not in order
+    int sx = E.schar_sx;
+    int sy = E.schar_sy;
+    int ex = E.schar_ex;
+    int ey = E.schar_ey;
+    if (compareCoord(sx, sy, ex, ey) < 0) {
+        swap(&sx, &ex);
+        swap(&sy, &ey);
+    }
+
     int y;
     for (y = 0; y < E.screenrows; y++) {
         int filerow = y + E.rowoff;
@@ -80,9 +91,8 @@ void editorDrawRows(struct abuf *ab) {
 
                 // selection coloring
                 int actual_col = j + E.coloff;
-                if (E.is_selected &&
-                    compareCoord(E.schar_sx, E.schar_sy, actual_col, y) >= 0 &&
-                    compareCoord(actual_col, y, E.schar_ex, E.schar_ey) >= 0) {
+                if (E.is_selected && compareCoord(sx, sy, actual_col, y) >= 0 &&
+                    compareCoord(actual_col, y, ex, ey) >= 0) {
                     abAppend(ab, "\x1b[47m", 5);
                 }
 

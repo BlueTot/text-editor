@@ -98,14 +98,10 @@ void editorMoveVisualSelection(int key) {
 
     // move the cursor and update the new end point
     editorMoveCursor(key);
+
+    // assign to endpoint
     E.schar_ex = E.cx;
     E.schar_ey = E.cy;
-
-    // if the end is before the start, swap them
-    if (compareCoord(E.schar_sx, E.schar_sy, E.schar_ex, E.schar_ey) == -1) {
-        swap(&E.schar_sx, &E.schar_ex);
-        swap(&E.schar_sy, &E.schar_ey);
-    }
 }
 
 void editorProcessNormalKeypress(int c) {
