@@ -18,6 +18,8 @@ void editorScroll() {
     // scroll right
     if (E.cx - E.screencols >= 0) {
         E.coloff = E.cx - E.screencols;
+    } else {
+        E.coloff = 0;
     }
     // if (E.cx - E.coloff) {
     //     E.coloff = E.rx;
