@@ -155,12 +155,28 @@ void editorProcessNormalKeypress(int c) {
             }
         } break;
 
-        // Arrow keys
-        case ARROW_UP:   // fall down
-        case ARROW_DOWN: // fall down
-        case ARROW_LEFT: // fall down
+        // move up
+        case ARROW_UP:
+        case 'k':
+            editorMoveCursor(ARROW_UP);
+            break;
+
+        // move down
+        case ARROW_DOWN:
+        case 'j':
+            editorMoveCursor(ARROW_DOWN);
+            break;
+
+        // move left
+        case ARROW_LEFT:
+        case 'h':
+            editorMoveCursor(ARROW_LEFT);
+            break;
+
+        // move right
         case ARROW_RIGHT:
-            editorMoveCursor(c);
+        case 'l':
+            editorMoveCursor(ARROW_RIGHT);
             break;
 
         // control key
