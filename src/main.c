@@ -23,6 +23,7 @@ void initEditor() {
     E.schar_sy = 0;
     E.schar_ex = 0;
     E.schar_ey = 0;
+    E.yank_buffer = NULL;
 
     if (getWindowSize(&E.screenrows, &E.screencols) == -1) {
         die("getWindowSize");

@@ -1,4 +1,5 @@
 #include "input.h"
+#include "yank_buffer.h"
 
 char *editorPrompt(char *prompt, void (*callback)(char *, int)) {
     size_t bufsize = 128;
@@ -222,6 +223,11 @@ void editorProcessNormalKeypress(int c) {
         case '\x1b':
             break;
 
+        // paste from buffer
+        case 'p':
+            pasteFromBuffer();
+            break;
+
         // otherwise
         default:
             break;
@@ -329,6 +335,13 @@ void editorProcessVisualCharKeypress(int c) {
             if (E.cy < E.numrows)
                 E.cx = E.row[E.cy].size;
             editorUpdateVisualSelection();
+            break;
+
+        // yank into buffer
+        case 'y':
+            yankToBuffer();
+            E.mode = MD_NORMAL;
+            E.is_selected = 0;
             break;
     }
 }
