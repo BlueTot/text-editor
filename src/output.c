@@ -91,8 +91,9 @@ void editorDrawRows(struct abuf *ab) {
 
                 // selection coloring
                 int actual_col = j + E.coloff;
-                if (E.is_selected && compareCoord(sx, sy, actual_col, y) >= 0 &&
-                    compareCoord(actual_col, y, ex, ey) >= 0) {
+                if (E.is_selected &&
+                    compareCoord(sx, sy, actual_col, filerow) >= 0 &&
+                    compareCoord(actual_col, filerow, ex, ey) >= 0) {
                     abAppend(ab, "\x1b[47m", 5);
                 }
 
