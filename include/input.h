@@ -12,4 +12,10 @@
 
 char *editorPrompt(char *prompt, void (*callback)(char *, int));
 void editorMoveCursor(int key);
+int compareCoord(int sx, int sy, int ex, int ey);
+void swap(int *a, int *b);
+void editorUpdateVisualSelection();
+void editorProcessNormalKeypress(int key);
+void editorProcessInsertKeypress(int key);
+void editorProcessVisualCharKeypress(int key);
 void editorProcessKeypress();

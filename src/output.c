@@ -1,4 +1,5 @@
 #include "output.h"
+#include "input.h"
 
 /* Scroll through the editor */
 void editorScroll() {
@@ -16,23 +17,28 @@ void editorScroll() {
         E.rowoff = E.cy - E.screenrows + 1;
     }
     // scroll right
-    if (E.cx - E.screencols >= 0) {
-        E.coloff = E.cx - E.screencols;
-    } else {
-        E.coloff = 0;
+    if (E.cx >= E.coloff + E.screencols) {
+        E.coloff = E.cx - E.screencols + 1;
     }
-    // if (E.cx - E.coloff) {
-    //     E.coloff = E.rx;
-    // }
     // scroll left
-    // if (E.cx )
-    // if (E.cx >= E.coloff + E.screencols) {
-    //     E.coloff = E.rx - E.screencols + 1;
-    // }
+    if (E.cx < E.coloff) {
+        E.coloff = E.cx;
+    }
 }
 
 /* Function to draw rows to the screen */
 void editorDrawRows(struct abuf *ab) {
+
+    // swap the selection endpoints if not in order
+    int sx = E.schar_sx;
+    int sy = E.schar_sy;
+    int ex = E.schar_ex;
+    int ey = E.schar_ey;
+    if (compareCoord(sx, sy, ex, ey) < 0) {
+        swap(&sx, &ex);
+        swap(&sy, &ey);
+    }
+
     int y;
     for (y = 0; y < E.screenrows; y++) {
         int filerow = y + E.rowoff;
@@ -80,9 +86,19 @@ void editorDrawRows(struct abuf *ab) {
 
             // highlighting array
             unsigned char *hl = &E.row[filerow].hl[E.coloff];
-            int current_color = -1;
-            int j;
+            int current_color = -1; // the current colour
+            int j;                  // the rendering column index
+
             for (j = 0; j < len; j++) {
+
+                // selection coloring
+                int actual_col = j + E.coloff;
+                if (E.is_selected &&
+                    compareCoord(sx, sy, actual_col, filerow) >= 0 &&
+                    compareCoord(actual_col, filerow, ex, ey) >= 0) {
+                    abAppend(ab, "\x1b[47m", 5);
+                }
+
                 if (iscntrl(c[j])) { // if the character is a control character
                     char sym = (c[j] <= 26) ? '@' + c[j] : '?';
                     abAppend(ab, "\x1b[7m", 4);
@@ -114,8 +130,10 @@ void editorDrawRows(struct abuf *ab) {
                     }
                     abAppend(ab, &c[j], 1); // append character
                 }
+
+                abAppend(ab, "\x1b[49m", 5); // clear background
             }
-            abAppend(ab, "\x1b[39m", 5);
+            abAppend(ab, "\x1b[39m", 5); // clear color
         }
 
         // erases part of line to the right of the cursor
@@ -133,7 +151,9 @@ void editorDrawStatusBar(struct abuf *ab) {
     // make buffer for status bar, and line number status bar
     char status[80], rstatus[80];
     int len = snprintf(status, sizeof(status), " [%s] | %.20s - %d lines %s",
-                       E.mode == MD_NORMAL ? "NORMAL" : "INSERT",
+                       E.mode == MD_NORMAL
+                           ? "NORMAL"
+                           : (E.mode == MD_INSERT ? "INSERT" : "VISUAL"),
                        E.filename ? E.filename : "[No Name]", E.numrows,
                        E.dirty ? "(modified)" : "");
     int rlen =

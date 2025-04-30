@@ -18,6 +18,11 @@ void initEditor() {
     E.statusmsg_time = 0;
     E.syntax = NULL;
     E.mode = MD_NORMAL;
+    E.is_selected = 0;
+    E.schar_sx = 0;
+    E.schar_sy = 0;
+    E.schar_ex = 0;
+    E.schar_ey = 0;
 
     if (getWindowSize(&E.screenrows, &E.screencols) == -1) {
         die("getWindowSize");
