@@ -17,10 +17,12 @@ void editorScroll() {
         E.rowoff = E.cy - E.screenrows + 1;
     }
     // scroll right
-    if (E.cx - E.screencols >= 0) {
-        E.coloff = E.cx - E.screencols;
-    } else {
-        E.coloff = 0;
+    if (E.cx >= E.coloff + E.screencols) {
+        E.coloff = E.cx - E.screencols + 1;
+    }
+    // scroll left
+    if (E.cx < E.coloff) {
+        E.coloff = E.cx;
     }
 }
 
