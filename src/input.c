@@ -94,11 +94,7 @@ void swap(int *a, int *b) {
     *b = tmp;
 }
 
-void editorMoveVisualSelection(int key) {
-
-    // move the cursor and update the new end point
-    editorMoveCursor(key);
-
+void editorUpdateVisualSelection() {
     // assign to endpoint
     E.schar_ex = E.cx;
     E.schar_ey = E.cy;
@@ -211,6 +207,16 @@ void editorProcessNormalKeypress(int c) {
             editorMoveCursor(ARROW_RIGHT);
             break;
 
+        // move to top of document
+        case 'g':
+            E.cy = 0;
+            break;
+
+        // move to bottom of document
+        case 'G':
+            E.cy = E.numrows - 1;
+            break;
+
         // control key
         case CTRL_KEY('l'):
         case '\x1b':
@@ -275,25 +281,54 @@ void editorProcessVisualCharKeypress(int c) {
         // move up
         case ARROW_UP:
         case 'k':
-            editorMoveVisualSelection(ARROW_UP);
+            editorMoveCursor(ARROW_UP);
+            editorUpdateVisualSelection();
             break;
 
         // move down
         case ARROW_DOWN:
         case 'j':
-            editorMoveVisualSelection(ARROW_DOWN);
+            editorMoveCursor(ARROW_DOWN);
+            editorUpdateVisualSelection();
             break;
 
         // move left
         case ARROW_LEFT:
         case 'h':
-            editorMoveVisualSelection(ARROW_LEFT);
+            editorMoveCursor(ARROW_LEFT);
+            editorUpdateVisualSelection();
             break;
 
         // move right
         case ARROW_RIGHT:
         case 'l':
-            editorMoveVisualSelection(ARROW_RIGHT);
+            editorMoveCursor(ARROW_RIGHT);
+            editorUpdateVisualSelection();
+            break;
+
+        // move to top of document
+        case 'g':
+            E.cy = 0;
+            editorUpdateVisualSelection();
+            break;
+
+        // move to bottom of document
+        case 'G':
+            E.cy = E.numrows - 1;
+            editorUpdateVisualSelection();
+            break;
+
+        // home key
+        case '0':
+            E.cx = 0;
+            editorUpdateVisualSelection();
+            break;
+
+        // end key
+        case '$':
+            if (E.cy < E.numrows)
+                E.cx = E.row[E.cy].size;
+            editorUpdateVisualSelection();
             break;
     }
 }
