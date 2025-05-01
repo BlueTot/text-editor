@@ -1,5 +1,6 @@
 #include "data.h"
 #include "input.h"
+#include "log.h"
 #include "output.h"
 #include "terminal.h"
 
@@ -31,6 +32,7 @@ void initEditor() {
 
     // make room for both status bars
     E.screenrows -= 2;
+    initLog();
 }
 
 /* Main function */

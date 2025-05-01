@@ -1,4 +1,5 @@
 #include "yank_buffer.h"
+#include "log.h"
 #include "row_ops.h"
 
 void yankToBuffer() {
@@ -46,6 +47,9 @@ void yankToBuffer() {
 
 void pasteFromBuffer() {
 
+    if (!E.yank_buffer)
+        return;
+
     int r = E.cy;
     int c = E.cx;
     int bufcap = 100;
@@ -53,6 +57,9 @@ void pasteFromBuffer() {
     char *line = malloc(bufcap);
     int isStart = 1;
     int rowOff = 0;
+
+    // debugging code
+    debugf("%s\n", E.yank_buffer);
 
     for (int i = 0; E.yank_buffer[i] != '\0'; i++) {
 
@@ -72,8 +79,10 @@ void pasteFromBuffer() {
             line[buflen] = '\0';
             if (isStart) {
                 editorRowAppendString(&E.row[r], line, buflen + 1);
+                editorUpdateRow(&E.row[r]);
             } else {
                 editorInsertRow(r + rowOff, line, buflen + 1);
+                editorUpdateRow(&E.row[r + rowOff]);
             }
             rowOff++;
             free(line);
