@@ -149,12 +149,30 @@ void editorDrawStatusBar(struct abuf *ab) {
     // enter inverted mode
     abAppend(ab, "\x1b[7m", 4);
 
+    // determine the mode string representation
+    const char* mode_str;
+    switch (E.mode) {
+        case MD_NORMAL:
+            mode_str = "NORMAL";
+            break;
+        case MD_INSERT:
+            mode_str = "INSERT";
+            break;
+        case MD_VISUAL_CHAR:
+            mode_str = "VISUAL";
+            break;
+        case MD_VISUAL_LINE:
+            mode_str = "V-LINE";
+            break;
+        default:
+            mode_str = "";
+            break;
+    }
+
     // make buffer for status bar, and line number status bar
     char status[80], rstatus[80];
     int len = snprintf(status, sizeof(status), " [%s] | %.20s - %d lines %s",
-                       E.mode == MD_NORMAL
-                           ? "NORMAL"
-                           : (E.mode == MD_INSERT ? "INSERT" : "VISUAL"),
+                       mode_str,
                        E.filename ? E.filename : "[No Name]", E.numrows,
                        E.dirty ? "(modified)" : "");
     int rlen =

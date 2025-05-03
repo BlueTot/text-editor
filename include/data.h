@@ -26,6 +26,7 @@ enum editorMode {
     MD_NORMAL,
     MD_INSERT,
     MD_VISUAL_CHAR,
+    MD_VISUAL_LINE,
 };
 
 struct editorConfig {

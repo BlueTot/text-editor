@@ -2,10 +2,10 @@
 
 cd build
 cmake ..
-if [ -f config_commands.json ]; then
-    mv config_commands ../
+if [ -f compile_commands.json ]; then
+    mv compile_commands.json ../
 else
-    echo "config_commands.json does not exist"
+    echo "compile_commands.json does not exist"
 fi
 cd ..
 exit 0

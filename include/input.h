@@ -20,4 +20,5 @@ void editorUpdateVisualSelection();
 void editorProcessNormalKeypress(int key);
 void editorProcessInsertKeypress(int key);
 void editorProcessVisualCharKeypress(int key);
+void editorProcessVisualLineKeypress(int key);
 void editorProcessKeypress();
