@@ -112,6 +112,18 @@ void editorRowInsertChar(erow *row, int at, int c) {
     E.dirty++;
 }
 
+/* Function to insert string into row */
+void editorRowInsertString(erow *row, int at, char* s, int length) {
+    if (at < 0 || at > row->size)
+        at = row->size;
+    row->chars = realloc(row->chars, row->size + length + 1);
+    memmove(&row->chars[at + length], &row->chars[at], row->size - at + 1);
+    row->size += length;
+    memcpy(&row->chars[at], s, length);
+    editorUpdateRow(row);
+    E.dirty++;
+}
+
 /* Function to append string to row */
 void editorRowAppendString(erow *row, char *s, size_t len) {
     row->chars = realloc(row->chars, row->size + len + 1);

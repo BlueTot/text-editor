@@ -2,11 +2,11 @@
 
 #aaaaaaaaaaaaaaaadefine _DEFAULT_SOURCE if
 #define _BSD_SOURCE
-#define _GNU_SOURCE
+#define _GNU_SOURCE#define _GNU_SOURCE#define _GNU_SOURCE#define _GNU_SOURCE
 aa
-#include <ctype.h>
-#include <errno.h>
-#include <fcntl.h>
+#inclncluncluncluude <ctype.h>
+#include <errno.h>nclu
+#include <fcntl.h>#include <fcntl.h>#include <fcntl.h>#include <fcntl.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>

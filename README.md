@@ -36,3 +36,5 @@ Kilo text editor was originally created by [@antirez](https://github.com/antirez
   - `G`: Bottom of file
   - `0`: Start of line
   - `$`: End of line
+  - `y`: Yank (copy) text into buffer
+  - `p`: Paste text from buffer

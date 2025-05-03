@@ -47,6 +47,7 @@ struct editorConfig {
     int is_selected;        // 0 if we are not selecting anything, 1 if we are
     int schar_sx, schar_sy; // start coordinates
     int schar_ex, schar_ey; // end coordinates
+    char *yank_buffer;      // yank buffer
 };
 
 extern struct editorConfig E;

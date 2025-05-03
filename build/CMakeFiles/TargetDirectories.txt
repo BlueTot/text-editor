@@ -1,0 +1,3 @@
+/home/bluetot/Files/GitHub/text-editor/build/CMakeFiles/text_editor.dir
+/home/bluetot/Files/GitHub/text-editor/build/CMakeFiles/edit_cache.dir
+/home/bluetot/Files/GitHub/text-editor/build/CMakeFiles/rebuild_cache.dir

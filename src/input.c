@@ -1,4 +1,5 @@
 #include "input.h"
+#include "yank_buffer.h"
 
 char *editorPrompt(char *prompt, void (*callback)(char *, int)) {
     size_t bufsize = 128;
@@ -52,8 +53,19 @@ void editorMoveCursor(int key) {
                 E.cx--;
             break;
         case ARROW_RIGHT:
-            if (row && E.cx < row->size)
-                E.cx++;
+            switch (E.mode) {
+                case MD_INSERT:
+                    if (row && E.cx < row->size)
+                        E.cx++;
+                    break;
+                default:
+                    if (row && E.cx < row->size-1)
+                        E.cx++;
+                    break;
+            }
+            // }
+            // if (row && E.cx < row->size - 1)
+            //     E.cx++;
             break;
         case ARROW_UP:
             if (E.cy != 0)
@@ -70,6 +82,17 @@ void editorMoveCursor(int key) {
     if (E.cx > rowlen) {
         E.cx = rowlen;
     }
+}
+
+/* Function to move the cursor to the start of the line */
+void editorMoveStartLine() {
+    E.cx = 0;
+}
+
+/* Function to move the cursor to the end of the line */
+void editorMoveEndLine() {
+    if (E.cy < E.numrows)
+        E.cx = E.row[E.cy].size - 1;
 }
 
 int compareCoord(int sx, int sy, int ex, int ey) {
@@ -112,8 +135,8 @@ void editorProcessNormalKeypress(int c) {
 
         // insert after cursor
         case 'a':
-            editorMoveCursor(ARROW_RIGHT);
             E.mode = MD_INSERT;
+            editorMoveCursor(ARROW_RIGHT);
             break;
 
         // enter visual character mode
@@ -147,13 +170,12 @@ void editorProcessNormalKeypress(int c) {
 
         // home key
         case '0':
-            E.cx = 0;
+            editorMoveStartLine();
             break;
 
         // end key
         case '$':
-            if (E.cy < E.numrows)
-                E.cx = E.row[E.cy].size;
+            editorMoveEndLine();
             break;
 
         // find key
@@ -220,6 +242,11 @@ void editorProcessNormalKeypress(int c) {
         // control key
         case CTRL_KEY('l'):
         case '\x1b':
+            break;
+
+        // paste from buffer
+        case 'p':
+            pasteFromBuffer();
             break;
 
         // otherwise
@@ -320,15 +347,21 @@ void editorProcessVisualCharKeypress(int c) {
 
         // home key
         case '0':
-            E.cx = 0;
+            editorMoveStartLine();
             editorUpdateVisualSelection();
             break;
 
         // end key
         case '$':
-            if (E.cy < E.numrows)
-                E.cx = E.row[E.cy].size;
+            editorMoveEndLine();
             editorUpdateVisualSelection();
+            break;
+
+        // yank into buffer
+        case 'y':
+            yankToBuffer();
+            E.mode = MD_NORMAL;
+            E.is_selected = 0;
             break;
     }
 }
