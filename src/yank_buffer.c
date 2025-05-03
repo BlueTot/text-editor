@@ -21,7 +21,7 @@ void yankToBuffer() {
 
     while (1) {
 
-        debugf("%d %d\n", r, c);
+        // debugf("%d %d\n", r, c);
 
         // store into buffer
         E.yank_buffer[buflen++] = E.row[r].chars[c];
@@ -50,6 +50,8 @@ void yankToBuffer() {
     E.yank_buffer = realloc(E.yank_buffer, ++buflen);
     E.yank_buffer[buflen - 1] = '\0';
 
+    debugf("%s\n", E.yank_buffer);
+
     editorSetStatusMessage("%d chars yanked to buffer", buflen - 1);
 }
 
@@ -70,25 +72,21 @@ void pasteFromBuffer() {
 
     for (int i = 0; i < length ; i++) {
 
-        // put into current row
-        line[buflen++] = E.yank_buffer[i];
+        debugf("%d %d\n", r, c);
 
-        // resize the array
-        if (buflen == bufcap) {
-            bufcap *= 2;
-            line = realloc(line, bufcap);
-        }
+        if (E.yank_buffer[i] == '\n' || i == length - 1) {
 
-        // if we reach the end of a row, we either append to the existing row or
-        // insert as a new row
-        if (c == E.row[r].rsize - 1 || i == length - 1) {
+            if (i == length - 1)
+                    line[buflen++] = E.yank_buffer[i];
 
-            if (startC != 0 || i == length - 1) {
+            debugf("%s %d %d\n", line, rowOff, startC);
+
+            if (startC != 0 && i == length - 1) {
                 editorRowInsertString(&E.row[r], startC, line, buflen);
                 editorUpdateRow(&E.row[r]);
             } else {
-                editorInsertRow(r + rowOff, line, buflen);
-                editorUpdateRow(&E.row[r + rowOff]);
+                editorInsertRow(r, line, buflen);
+                editorUpdateRow(&E.row[r]);
             }
 
             r++; // update row
@@ -99,9 +97,19 @@ void pasteFromBuffer() {
             buflen = 0; // reset buffer length
             startC = 0; // put starting column back to 0
             line = malloc(bufcap); // create dynamic string
-        } else {
-            c++; // just increment column
+            continue;
         }
+
+        // put into current row
+        line[buflen++] = E.yank_buffer[i];
+
+        // resize the array
+        if (buflen == bufcap) {
+            bufcap *= 2;
+            line = realloc(line, bufcap);
+        }
+        c++;
+
     }
 
     free(line);

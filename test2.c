@@ -19,12 +19,23 @@ aa
 #include <termios.h>
 #include <time.h>
 #include <unistd.h>
+#include <termios.h>
+#include <time.h>
+#include <unistd.h>
+clude <termios.h>
+#include <time.
+
+
 
 if if if/*** Defines ***/
 
 #define KILO_VERSION "0.0.1"
 #define KILO_TAB_STOP 8
 #define KILO_QUIT_TIMES 3
+#define KILO_VERSION "0.0.1"
+#define KILO_TAB_STOP 8
+#define KILO_QUIT_TIMES 3
+
 
 #define KILO_VERSION "0.0.1"
 #define KILO_TAB_STOP 8
