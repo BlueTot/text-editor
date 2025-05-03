@@ -21,7 +21,7 @@ void yankToBuffer() {
     while (r != E.schar_ey || c != E.schar_ex) {
 
         // store into buffer
-       E.yank_buffer[buflen++] = E.row[r].render[c];
+       E.yank_buffer[buflen++] = E.row[r].chars[c];
 
         // if we run out of space, resize the array
         if (buflen == bufcap) {
@@ -32,7 +32,7 @@ void yankToBuffer() {
         }
 
         // go to next position
-        if (c == E.row[r].rsize - 1) {
+        if (c == E.row[r].size - 1) {
             E.yank_buffer[buflen++] = '\n';
             r++;
             c = 0;
@@ -42,7 +42,7 @@ void yankToBuffer() {
     }
 
     E.yank_buffer = realloc(E.yank_buffer, ++buflen);
-    E.yank_buffer[buflen] = '\0';
+    E.yank_buffer[buflen - 1] = '\0';
 
     debugf("%d\n", buflen);
 }
@@ -59,9 +59,9 @@ void pasteFromBuffer() {
     int buflen = 0;
     char *line = malloc(bufcap);
 
-    // int isStart = 1;
     int rowOff = 0;
     int length = strlen(E.yank_buffer);
+    debugf("%d\n", length);
 
     // debugging code
     debugf("%s\n", E.yank_buffer);
@@ -82,16 +82,16 @@ void pasteFromBuffer() {
         // if we reach the end of a row, we either append to the existing row or
         // insert as a new row
         if (c == E.row[r].rsize - 1 || i == length - 1) {
-            line = realloc(line, ++buflen);
-            line[buflen] = '\0';
+            // line = realloc(line, ++buflen);
+            // line[buflen - 1] = '\0';
 
             debugf("%s\n", line);
 
             if (startC != 0 || i == length - 1) {
-                editorRowInsertString(&E.row[r], startC, line, buflen + 1);
+                editorRowInsertString(&E.row[r], startC, line, buflen);
                 editorUpdateRow(&E.row[r]);
             } else {
-                editorInsertRow(r + rowOff, line, buflen + 1);
+                editorInsertRow(r + rowOff, line, buflen);
                 editorUpdateRow(&E.row[r + rowOff]);
             }
 
