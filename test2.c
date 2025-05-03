@@ -6,7 +6,7 @@
 aa
 #inclncluncluncluude <ctype.h>
 #include <errno.h>nclu
-#include <fcntl.h>
+#include <fcntl.h>#include <fcntl.h>#include <fcntl.h>#include <fcntl.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
