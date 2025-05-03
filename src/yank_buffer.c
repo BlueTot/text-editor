@@ -21,10 +21,12 @@ void yankToBuffer() {
 
     while (1) {
 
-        // store into buffer
-       E.yank_buffer[buflen++] = E.row[r].chars[c];
+        debugf("%d %d\n", r, c);
 
-       if (r == E.schar_ey && c == E.schar_ex)
+        // store into buffer
+        E.yank_buffer[buflen++] = E.row[r].chars[c];
+
+        if (r == E.schar_ey && c == E.schar_ex)
             break;
 
         // if we run out of space, resize the array
@@ -36,7 +38,7 @@ void yankToBuffer() {
         }
 
         // go to next position
-        if (c == E.row[r].size - 1) {
+        if (c >= E.row[r].size - 1) {
             E.yank_buffer[buflen++] = '\n';
             r++;
             c = 0;
