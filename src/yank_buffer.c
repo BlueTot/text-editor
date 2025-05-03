@@ -1,5 +1,6 @@
 #include "yank_buffer.h"
 #include "log.h"
+#include "output.h"
 #include "row_ops.h"
 
 void yankToBuffer() {
@@ -18,10 +19,13 @@ void yankToBuffer() {
     int r = E.schar_sy;
     int c = E.schar_sx;
 
-    while (r != E.schar_ey || c != E.schar_ex) {
+    while (1) {
 
         // store into buffer
        E.yank_buffer[buflen++] = E.row[r].chars[c];
+
+       if (r == E.schar_ey && c == E.schar_ex)
+            break;
 
         // if we run out of space, resize the array
         if (buflen == bufcap) {
@@ -44,7 +48,7 @@ void yankToBuffer() {
     E.yank_buffer = realloc(E.yank_buffer, ++buflen);
     E.yank_buffer[buflen - 1] = '\0';
 
-    debugf("%d\n", buflen);
+    editorSetStatusMessage("%d chars yanked to buffer", buflen - 1);
 }
 
 void pasteFromBuffer() {
@@ -61,14 +65,8 @@ void pasteFromBuffer() {
 
     int rowOff = 0;
     int length = strlen(E.yank_buffer);
-    debugf("%d\n", length);
-
-    // debugging code
-    debugf("%s\n", E.yank_buffer);
 
     for (int i = 0; i < length ; i++) {
-
-        debugf("%d\n", i);
 
         // put into current row
         line[buflen++] = E.yank_buffer[i];
@@ -82,10 +80,6 @@ void pasteFromBuffer() {
         // if we reach the end of a row, we either append to the existing row or
         // insert as a new row
         if (c == E.row[r].rsize - 1 || i == length - 1) {
-            // line = realloc(line, ++buflen);
-            // line[buflen - 1] = '\0';
-
-            debugf("%s\n", line);
 
             if (startC != 0 || i == length - 1) {
                 editorRowInsertString(&E.row[r], startC, line, buflen);
@@ -109,6 +103,8 @@ void pasteFromBuffer() {
     }
 
     free(line);
+
+    editorSetStatusMessage("%d chars pasted from buffer", length);
 }
 
 void freeYankBuffer() { free(E.yank_buffer); }

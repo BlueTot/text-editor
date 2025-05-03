@@ -53,8 +53,19 @@ void editorMoveCursor(int key) {
                 E.cx--;
             break;
         case ARROW_RIGHT:
-            if (row && E.cx < row->size - 1)
-                E.cx++;
+            switch (E.mode) {
+                case MD_INSERT:
+                    if (row && E.cx < row->size)
+                        E.cx++;
+                    break;
+                default:
+                    if (row && E.cx < row->size-1)
+                        E.cx++;
+                    break;
+            }
+            // }
+            // if (row && E.cx < row->size - 1)
+            //     E.cx++;
             break;
         case ARROW_UP:
             if (E.cy != 0)
@@ -124,8 +135,8 @@ void editorProcessNormalKeypress(int c) {
 
         // insert after cursor
         case 'a':
-            editorMoveCursor(ARROW_RIGHT);
             E.mode = MD_INSERT;
+            editorMoveCursor(ARROW_RIGHT);
             break;
 
         // enter visual character mode
