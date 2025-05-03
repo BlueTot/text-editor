@@ -25,6 +25,7 @@ Kilo text editor was originally created by [@antirez](https://github.com/antirez
   - Normal mode: Move around document, save and quit
   - Insert mode: Insert text
   - Visual mode: Select text
+  - Visual Line mode: Select lines of text
 
 - Vim-like macros
   - `a`: Insert after cursor
