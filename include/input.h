@@ -12,6 +12,8 @@
 
 char *editorPrompt(char *prompt, void (*callback)(char *, int));
 void editorMoveCursor(int key);
+void editorMoveStartLine();
+void editorMoveEndLine();
 int compareCoord(int sx, int sy, int ex, int ey);
 void swap(int *a, int *b);
 void editorUpdateVisualSelection();

@@ -96,7 +96,8 @@ void editorDrawRows(struct abuf *ab) {
                 if (E.is_selected &&
                     compareCoord(sx, sy, actual_col, filerow) >= 0 &&
                     compareCoord(actual_col, filerow, ex, ey) >= 0) {
-                    abAppend(ab, "\x1b[47m", 5);
+                    // abAppend(ab, "\x1b[47m", 5);
+                    abAppend(ab, "\x1b[48;5;245m", 11);  // medium grey
                 }
 
                 if (iscntrl(c[j])) { // if the character is a control character

@@ -53,7 +53,7 @@ void editorMoveCursor(int key) {
                 E.cx--;
             break;
         case ARROW_RIGHT:
-            if (row && E.cx < row->size)
+            if (row && E.cx < row->size - 1)
                 E.cx++;
             break;
         case ARROW_UP:
@@ -71,6 +71,17 @@ void editorMoveCursor(int key) {
     if (E.cx > rowlen) {
         E.cx = rowlen;
     }
+}
+
+/* Function to move the cursor to the start of the line */
+void editorMoveStartLine() {
+    E.cx = 0;
+}
+
+/* Function to move the cursor to the end of the line */
+void editorMoveEndLine() {
+    if (E.cy < E.numrows)
+        E.cx = E.row[E.cy].size - 1;
 }
 
 int compareCoord(int sx, int sy, int ex, int ey) {
@@ -148,13 +159,12 @@ void editorProcessNormalKeypress(int c) {
 
         // home key
         case '0':
-            E.cx = 0;
+            editorMoveStartLine();
             break;
 
         // end key
         case '$':
-            if (E.cy < E.numrows)
-                E.cx = E.row[E.cy].size;
+            editorMoveEndLine();
             break;
 
         // find key
@@ -326,14 +336,13 @@ void editorProcessVisualCharKeypress(int c) {
 
         // home key
         case '0':
-            E.cx = 0;
+            editorMoveStartLine();
             editorUpdateVisualSelection();
             break;
 
         // end key
         case '$':
-            if (E.cy < E.numrows)
-                E.cx = E.row[E.cy].size;
+            editorMoveEndLine();
             editorUpdateVisualSelection();
             break;
 
