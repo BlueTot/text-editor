@@ -130,6 +130,14 @@ void editorUpdateVisualLineSelection() {
     // assign to endpoint
     E.schar_ex = E.row[E.cy].rsize - 1;
     E.schar_ey = E.cy;
+
+    if (compareCoord(E.schar_sx, E.schar_sy, E.schar_ex, E.schar_ey) == -1) {
+        E.schar_sx = E.row[E.schar_sy].rsize - 1;
+        E.schar_ex = 0;
+    } else {
+        E.schar_sx = 0;
+        E.schar_ex = E.row[E.schar_ey].rsize - 1;
+    }
 }
 
 void editorProcessNormalKeypress(int c) {
