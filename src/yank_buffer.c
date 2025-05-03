@@ -18,10 +18,10 @@ void yankToBuffer() {
     int r = E.schar_sy;
     int c = E.schar_sx;
 
-    while (r != E.schar_sy || c != E.schar_sx) {
+    while (r != E.schar_ey || c != E.schar_ex) {
 
         // store into buffer
-        E.yank_buffer[buflen++] = E.row[r].render[c];
+       E.yank_buffer[buflen++] = E.row[r].render[c];
 
         // if we run out of space, resize the array
         if (buflen == bufcap) {
@@ -43,6 +43,8 @@ void yankToBuffer() {
 
     E.yank_buffer = realloc(E.yank_buffer, ++buflen);
     E.yank_buffer[buflen] = '\0';
+
+    debugf("%d\n", buflen);
 }
 
 void pasteFromBuffer() {
@@ -57,11 +59,14 @@ void pasteFromBuffer() {
     char *line = malloc(bufcap);
     int isStart = 1;
     int rowOff = 0;
+    int length = strlen(E.yank_buffer);
 
     // debugging code
     debugf("%s\n", E.yank_buffer);
 
-    for (int i = 0; E.yank_buffer[i] != '\0'; i++) {
+    for (int i = 0; i < length ; i++) {
+
+        debugf("%d\n", i);
 
         // put into current row
         line[buflen++] = E.yank_buffer[i];
@@ -74,21 +79,30 @@ void pasteFromBuffer() {
 
         // if we reach the end of a row, we either append to the existing row or
         // insert as a new row
-        if (c == E.row[r].rsize - 1) {
+        if (c == E.row[r].rsize - 1 || i == length - 1) {
             line = realloc(line, ++buflen);
             line[buflen] = '\0';
-            if (isStart) {
-                editorRowAppendString(&E.row[r], line, buflen + 1);
+
+            debugf("%s\n", line);
+
+            if (isStart || i == length - 1) {
+                editorRowInsertString(&E.row[r], c, line, buflen + 1);
                 editorUpdateRow(&E.row[r]);
             } else {
                 editorInsertRow(r + rowOff, line, buflen + 1);
                 editorUpdateRow(&E.row[r + rowOff]);
             }
-            rowOff++;
-            free(line);
-            bufcap = 100;
-            buflen = 0;
-            line = malloc(bufcap);
+
+            r++; // update row
+            c = 0; // update column
+            rowOff++; // increment row off
+            free(line); // free the current line
+            bufcap = 100; // reset buffer cap
+            buflen = 0; // reset buffer length
+            isStart = 0; // we are no longer at start
+            line = malloc(bufcap); // create dynamic string
+        } else {
+            c++; // just increment column
         }
     }
 
