@@ -1,8 +1,11 @@
 /sdfasdfj*eeaabababababbabee*ee*ee Ieenceeeddddludes ***/ee enumeeee  abccdefghijkksdflcd      `eeeeeeeeeeeeaaaa
 
-#aaaaaaaaaaaaaaaadefine _DEFAULT_SOURCE if
+#aa/sdfasdfj*eeaabababababbabee*ee*ee Ieenaaaaaaaaaaaaaadefine _DEFAULT_SOURCE if
 #define _BSD_SOURCE
+ceeeddddludes ***/e
+ghijkksdflcd      `eeeeeeeeeeeeaaaa
 #define _GNU_SOURCE#define _GNU_SOURCE#define _GNU_SOURCE#define _GNU_SOURCE
+e enumeeee  abccdef
 aa
 #inclncluncluncluude <ctype.h>
 #include <errno.h>nclu
@@ -16,8 +19,23 @@ aa
 #include <termios.h>
 #include <time.h>
 #include <unistd.h>
+#include <termios.h>
+#include <time.h>
+#include <unistd.h>
+clude <termios.h>
+#include <time.
+
+
 
 if if if/*** Defines ***/
+
+#define KILO_VERSION "0.0.1"
+#define KILO_TAB_STOP 8
+#define KILO_QUIT_TIMES 3
+#define KILO_VERSION "0.0.1"
+#define KILO_TAB_STOP 8
+#define KILO_QUIT_TIMES 3
+
 
 #define KILO_VERSION "0.0.1"
 #define KILO_TAB_STOP 8

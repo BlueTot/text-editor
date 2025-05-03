@@ -67,21 +67,21 @@ void editorMoveCursor(int key) {
             // if (row && E.cx < row->size - 1)
             //     E.cx++;
             break;
-        case ARROW_UP:
+    case ARROW_UP:
             if (E.cy != 0)
                 E.cy--;
             break;
-        case ARROW_DOWN:
+    case ARROW_DOWN:
             if (E.cy < E.numrows)
                 E.cy++;
             break;
-    }
+}
 
-    row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
-    int rowlen = row ? row->size : 0;
-    if (E.cx > rowlen) {
-        E.cx = rowlen;
-    }
+row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
+int rowlen = row ? row->size : 0;
+if (E.cx > rowlen) {
+    E.cx = rowlen;
+}
 }
 
 /* Function to move the cursor to the start of the line */
@@ -111,16 +111,33 @@ int compareCoord(int sx, int sy, int ex, int ey) {
     }
 }
 
+/* Function to swap two ints */
 void swap(int *a, int *b) {
     int tmp = *a;
     *a = *b;
     *b = tmp;
 }
 
+/* Function to update visual character selection */
 void editorUpdateVisualSelection() {
     // assign to endpoint
     E.schar_ex = E.cx;
     E.schar_ey = E.cy;
+}
+
+/* Function to update visual line selection */
+void editorUpdateVisualLineSelection() {
+    // assign to endpoint
+    E.schar_ex = E.row[E.cy].rsize - 1;
+    E.schar_ey = E.cy;
+
+    if (compareCoord(E.schar_sx, E.schar_sy, E.schar_ex, E.schar_ey) == -1) {
+        E.schar_sx = E.row[E.schar_sy].rsize - 1;
+        E.schar_ex = 0;
+    } else {
+        E.schar_sx = 0;
+        E.schar_ex = E.row[E.schar_ey].rsize - 1;
+    }
 }
 
 void editorProcessNormalKeypress(int c) {
@@ -133,13 +150,13 @@ void editorProcessNormalKeypress(int c) {
             E.mode = MD_INSERT;
             break;
 
-        // insert after cursor
+            // insert after cursor
         case 'a':
             E.mode = MD_INSERT;
             editorMoveCursor(ARROW_RIGHT);
             break;
 
-        // enter visual character mode
+            // enter visual character mode
         case 'v':
             E.mode = MD_VISUAL_CHAR;
             E.is_selected = 1;
@@ -148,13 +165,23 @@ void editorProcessNormalKeypress(int c) {
             E.schar_ex = E.cx;
             E.schar_ey = E.cy;
             break;
+    
+        // enter visual line mode
+        case 'V':
+            E.mode = MD_VISUAL_LINE;
+            E.is_selected = 1;
+            E.schar_sx = 0;
+            E.schar_sy = E.cy;
+            E.schar_ex = E.row[E.cy].rsize - 1;
+            E.schar_ey = E.cy;
+            break;
 
-        // quit
+            // quit
         case CTRL_KEY('q'):
             if (E.dirty && quit_times > 0) {
                 editorSetStatusMessage("WARNING!!! File has unsaved changes. "
-                                       "Press Ctrl-Q %d more times to quit.",
-                                       quit_times);
+                        "Press Ctrl-Q %d more times to quit.",
+                        quit_times);
                 quit_times--;
                 return;
             }
@@ -163,95 +190,95 @@ void editorProcessNormalKeypress(int c) {
             exit(0);
             break;
 
-        // save file
+            // save file
         case CTRL_KEY('s'):
             editorSave();
             break;
 
-        // home key
+            // home key
         case '0':
             editorMoveStartLine();
             break;
 
-        // end key
+            // end key
         case '$':
             editorMoveEndLine();
             break;
 
-        // find key
+            // find key
         case CTRL_KEY('f'):
             editorFind();
             break;
 
-        // back space
+            // back space
         case BACKSPACE:
         case CTRL_KEY('h'):
         case DEL_KEY:
             editorMoveCursor(ARROW_LEFT);
             break;
 
-        // page up or page down keys entered
+            // page up or page down keys entered
         case PAGE_UP: // fall down
         case PAGE_DOWN: {
-            if (c == PAGE_UP) {
-                E.cy = E.rowoff;
-            } else if (c == PAGE_DOWN) {
-                E.cy = E.rowoff + E.screenrows - 1;
-            }
+                            if (c == PAGE_UP) {
+                                E.cy = E.rowoff;
+                            } else if (c == PAGE_DOWN) {
+                                E.cy = E.rowoff + E.screenrows - 1;
+                            }
 
-            int times = E.screenrows;
-            while (times--) {
-                editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
-            }
-        } break;
+                            int times = E.screenrows;
+                            while (times--) {
+                                editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
+                            }
+                        } break;
 
-        // move up
+                        // move up
         case ARROW_UP:
         case 'k':
-            editorMoveCursor(ARROW_UP);
-            break;
+                        editorMoveCursor(ARROW_UP);
+                        break;
 
-        // move down
+                        // move down
         case ARROW_DOWN:
         case 'j':
-            editorMoveCursor(ARROW_DOWN);
-            break;
+                        editorMoveCursor(ARROW_DOWN);
+                        break;
 
-        // move left
+                        // move left
         case ARROW_LEFT:
         case 'h':
-            editorMoveCursor(ARROW_LEFT);
-            break;
+                        editorMoveCursor(ARROW_LEFT);
+                        break;
 
-        // move right
+                        // move right
         case ARROW_RIGHT:
         case 'l':
-            editorMoveCursor(ARROW_RIGHT);
-            break;
+                        editorMoveCursor(ARROW_RIGHT);
+                        break;
 
-        // move to top of document
+                        // move to top of document
         case 'g':
-            E.cy = 0;
-            break;
+                        E.cy = 0;
+                        break;
 
-        // move to bottom of document
+                        // move to bottom of document
         case 'G':
-            E.cy = E.numrows - 1;
-            break;
+                        E.cy = E.numrows - 1;
+                        break;
 
-        // control key
+                        // control key
         case CTRL_KEY('l'):
         case '\x1b':
-            break;
+                        break;
 
-        // paste from buffer
+                        // paste from buffer
         case 'p':
-            pasteFromBuffer();
-            break;
+                        pasteFromBuffer();
+                        break;
 
-        // otherwise
+                        // otherwise
         default:
-            break;
+                        break;
     }
 
     quit_times = KILO_QUIT_TIMES;
@@ -266,12 +293,12 @@ void editorProcessInsertKeypress(int c) {
             E.mode = MD_NORMAL;
             break;
 
-        // new line
+            // new line
         case '\r':
             editorInsertNewLine();
             break;
 
-        // back space
+            // back space
         case BACKSPACE:
         case CTRL_KEY('h'):
         case DEL_KEY:
@@ -280,7 +307,7 @@ void editorProcessInsertKeypress(int c) {
             editorDelChar();
             break;
 
-        // movement keys
+            // movement keys
         case ARROW_UP:   // fall down
         case ARROW_DOWN: // fall down
         case ARROW_LEFT: // fall down
@@ -288,7 +315,7 @@ void editorProcessInsertKeypress(int c) {
             editorMoveCursor(c);
             break;
 
-        // otherwise, try to insert a character
+            // otherwise, try to insert a character
         default:
             editorInsertChar(c);
             break;
@@ -305,59 +332,59 @@ void editorProcessVisualCharKeypress(int c) {
             E.is_selected = 0;
             break;
 
-        // move up
+            // move up
         case ARROW_UP:
         case 'k':
             editorMoveCursor(ARROW_UP);
             editorUpdateVisualSelection();
             break;
 
-        // move down
+            // move down
         case ARROW_DOWN:
         case 'j':
             editorMoveCursor(ARROW_DOWN);
             editorUpdateVisualSelection();
             break;
 
-        // move left
+            // move left
         case ARROW_LEFT:
         case 'h':
             editorMoveCursor(ARROW_LEFT);
             editorUpdateVisualSelection();
             break;
 
-        // move right
+            // move right
         case ARROW_RIGHT:
         case 'l':
             editorMoveCursor(ARROW_RIGHT);
             editorUpdateVisualSelection();
             break;
 
-        // move to top of document
+            // move to top of document
         case 'g':
             E.cy = 0;
             editorUpdateVisualSelection();
             break;
 
-        // move to bottom of document
+            // move to bottom of document
         case 'G':
             E.cy = E.numrows - 1;
             editorUpdateVisualSelection();
             break;
 
-        // home key
+            // home key
         case '0':
             editorMoveStartLine();
             editorUpdateVisualSelection();
             break;
 
-        // end key
+            // end key
         case '$':
             editorMoveEndLine();
             editorUpdateVisualSelection();
             break;
 
-        // yank into buffer
+            // yank into buffer
         case 'y':
             yankToBuffer();
             E.mode = MD_NORMAL;
@@ -365,6 +392,79 @@ void editorProcessVisualCharKeypress(int c) {
             break;
     }
 }
+
+
+void editorProcessVisualLineKeypress(int c) {
+
+    switch (c) {
+
+        // escape key
+        case '\x1b':
+            E.mode = MD_NORMAL;
+            E.is_selected = 0;
+            break;
+
+            // move up
+        case ARROW_UP:
+        case 'k':
+            editorMoveCursor(ARROW_UP);
+            editorUpdateVisualLineSelection();
+            break;
+
+            // move down
+        case ARROW_DOWN:
+        case 'j':
+            editorMoveCursor(ARROW_DOWN);
+            editorUpdateVisualLineSelection();
+            break;
+
+            // move left
+        case ARROW_LEFT:
+        case 'h':
+            editorMoveCursor(ARROW_LEFT);
+            editorUpdateVisualLineSelection();
+            break;
+
+            // move right
+        case ARROW_RIGHT:
+        case 'l':
+            editorMoveCursor(ARROW_RIGHT);
+            editorUpdateVisualLineSelection();
+            break;
+
+            // move to top of document
+        case 'g':
+            E.cy = 0;
+            editorUpdateVisualLineSelection();
+            break;
+
+            // move to bottom of document
+        case 'G':
+            E.cy = E.numrows - 1;
+            editorUpdateVisualLineSelection();
+            break;
+
+            // home key
+        case '0':
+            editorMoveStartLine();
+            editorUpdateVisualLineSelection();
+            break;
+
+            // end key
+        case '$':
+            editorMoveEndLine();
+            editorUpdateVisualLineSelection();
+            break;
+
+            // yank into buffer
+        case 'y':
+            yankToBuffer();
+            E.mode = MD_NORMAL;
+            E.is_selected = 0;
+            break;
+    }
+}
+
 
 /* Function to process key from user */
 void editorProcessKeypress() {
@@ -380,5 +480,7 @@ void editorProcessKeypress() {
         case MD_VISUAL_CHAR:
             editorProcessVisualCharKeypress(c);
             break;
+        case MD_VISUAL_LINE:
+            editorProcessVisualLineKeypress(c);
     }
 }
