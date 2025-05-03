@@ -1,0 +1,80 @@
+[
+{
+  "directory": "/home/bluetot/Files/GitHub/text-editor/build",
+  "command": "/usr/bin/cc  -I/home/bluetot/Files/GitHub/text-editor/include -std=gnu99 -o CMakeFiles/text_editor.dir/src/append_buffer.c.o -c /home/bluetot/Files/GitHub/text-editor/src/append_buffer.c",
+  "file": "/home/bluetot/Files/GitHub/text-editor/src/append_buffer.c",
+  "output": "CMakeFiles/text_editor.dir/src/append_buffer.c.o"
+},
+{
+  "directory": "/home/bluetot/Files/GitHub/text-editor/build",
+  "command": "/usr/bin/cc  -I/home/bluetot/Files/GitHub/text-editor/include -std=gnu99 -o CMakeFiles/text_editor.dir/src/data.c.o -c /home/bluetot/Files/GitHub/text-editor/src/data.c",
+  "file": "/home/bluetot/Files/GitHub/text-editor/src/data.c",
+  "output": "CMakeFiles/text_editor.dir/src/data.c.o"
+},
+{
+  "directory": "/home/bluetot/Files/GitHub/text-editor/build",
+  "command": "/usr/bin/cc  -I/home/bluetot/Files/GitHub/text-editor/include -std=gnu99 -o CMakeFiles/text_editor.dir/src/editor_ops.c.o -c /home/bluetot/Files/GitHub/text-editor/src/editor_ops.c",
+  "file": "/home/bluetot/Files/GitHub/text-editor/src/editor_ops.c",
+  "output": "CMakeFiles/text_editor.dir/src/editor_ops.c.o"
+},
+{
+  "directory": "/home/bluetot/Files/GitHub/text-editor/build",
+  "command": "/usr/bin/cc  -I/home/bluetot/Files/GitHub/text-editor/include -std=gnu99 -o CMakeFiles/text_editor.dir/src/file_io.c.o -c /home/bluetot/Files/GitHub/text-editor/src/file_io.c",
+  "file": "/home/bluetot/Files/GitHub/text-editor/src/file_io.c",
+  "output": "CMakeFiles/text_editor.dir/src/file_io.c.o"
+},
+{
+  "directory": "/home/bluetot/Files/GitHub/text-editor/build",
+  "command": "/usr/bin/cc  -I/home/bluetot/Files/GitHub/text-editor/include -std=gnu99 -o CMakeFiles/text_editor.dir/src/find.c.o -c /home/bluetot/Files/GitHub/text-editor/src/find.c",
+  "file": "/home/bluetot/Files/GitHub/text-editor/src/find.c",
+  "output": "CMakeFiles/text_editor.dir/src/find.c.o"
+},
+{
+  "directory": "/home/bluetot/Files/GitHub/text-editor/build",
+  "command": "/usr/bin/cc  -I/home/bluetot/Files/GitHub/text-editor/include -std=gnu99 -o CMakeFiles/text_editor.dir/src/input.c.o -c /home/bluetot/Files/GitHub/text-editor/src/input.c",
+  "file": "/home/bluetot/Files/GitHub/text-editor/src/input.c",
+  "output": "CMakeFiles/text_editor.dir/src/input.c.o"
+},
+{
+  "directory": "/home/bluetot/Files/GitHub/text-editor/build",
+  "command": "/usr/bin/cc  -I/home/bluetot/Files/GitHub/text-editor/include -std=gnu99 -o CMakeFiles/text_editor.dir/src/log.c.o -c /home/bluetot/Files/GitHub/text-editor/src/log.c",
+  "file": "/home/bluetot/Files/GitHub/text-editor/src/log.c",
+  "output": "CMakeFiles/text_editor.dir/src/log.c.o"
+},
+{
+  "directory": "/home/bluetot/Files/GitHub/text-editor/build",
+  "command": "/usr/bin/cc  -I/home/bluetot/Files/GitHub/text-editor/include -std=gnu99 -o CMakeFiles/text_editor.dir/src/main.c.o -c /home/bluetot/Files/GitHub/text-editor/src/main.c",
+  "file": "/home/bluetot/Files/GitHub/text-editor/src/main.c",
+  "output": "CMakeFiles/text_editor.dir/src/main.c.o"
+},
+{
+  "directory": "/home/bluetot/Files/GitHub/text-editor/build",
+  "command": "/usr/bin/cc  -I/home/bluetot/Files/GitHub/text-editor/include -std=gnu99 -o CMakeFiles/text_editor.dir/src/output.c.o -c /home/bluetot/Files/GitHub/text-editor/src/output.c",
+  "file": "/home/bluetot/Files/GitHub/text-editor/src/output.c",
+  "output": "CMakeFiles/text_editor.dir/src/output.c.o"
+},
+{
+  "directory": "/home/bluetot/Files/GitHub/text-editor/build",
+  "command": "/usr/bin/cc  -I/home/bluetot/Files/GitHub/text-editor/include -std=gnu99 -o CMakeFiles/text_editor.dir/src/row_ops.c.o -c /home/bluetot/Files/GitHub/text-editor/src/row_ops.c",
+  "file": "/home/bluetot/Files/GitHub/text-editor/src/row_ops.c",
+  "output": "CMakeFiles/text_editor.dir/src/row_ops.c.o"
+},
+{
+  "directory": "/home/bluetot/Files/GitHub/text-editor/build",
+  "command": "/usr/bin/cc  -I/home/bluetot/Files/GitHub/text-editor/include -std=gnu99 -o CMakeFiles/text_editor.dir/src/syntax.c.o -c /home/bluetot/Files/GitHub/text-editor/src/syntax.c",
+  "file": "/home/bluetot/Files/GitHub/text-editor/src/syntax.c",
+  "output": "CMakeFiles/text_editor.dir/src/syntax.c.o"
+},
+{
+  "directory": "/home/bluetot/Files/GitHub/text-editor/build",
+  "command": "/usr/bin/cc  -I/home/bluetot/Files/GitHub/text-editor/include -std=gnu99 -o CMakeFiles/text_editor.dir/src/terminal.c.o -c /home/bluetot/Files/GitHub/text-editor/src/terminal.c",
+  "file": "/home/bluetot/Files/GitHub/text-editor/src/terminal.c",
+  "output": "CMakeFiles/text_editor.dir/src/terminal.c.o"
+},
+{
+  "directory": "/home/bluetot/Files/GitHub/text-editor/build",
+  "command": "/usr/bin/cc  -I/home/bluetot/Files/GitHub/text-editor/include -std=gnu99 -o CMakeFiles/text_editor.dir/src/yank_buffer.c.o -c /home/bluetot/Files/GitHub/text-editor/src/yank_buffer.c",
+  "file": "/home/bluetot/Files/GitHub/text-editor/src/yank_buffer.c",
+  "output": "CMakeFiles/text_editor.dir/src/yank_buffer.c.o"
+}
+]
