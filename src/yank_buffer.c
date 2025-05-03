@@ -54,10 +54,12 @@ void pasteFromBuffer() {
 
     int r = E.cy;
     int c = E.cx;
+    int startC = E.cx;
     int bufcap = 100;
     int buflen = 0;
     char *line = malloc(bufcap);
-    int isStart = 1;
+
+    // int isStart = 1;
     int rowOff = 0;
     int length = strlen(E.yank_buffer);
 
@@ -85,8 +87,8 @@ void pasteFromBuffer() {
 
             debugf("%s\n", line);
 
-            if (isStart || i == length - 1) {
-                editorRowInsertString(&E.row[r], c, line, buflen + 1);
+            if (startC != 0 || i == length - 1) {
+                editorRowInsertString(&E.row[r], startC, line, buflen + 1);
                 editorUpdateRow(&E.row[r]);
             } else {
                 editorInsertRow(r + rowOff, line, buflen + 1);
@@ -99,7 +101,7 @@ void pasteFromBuffer() {
             free(line); // free the current line
             bufcap = 100; // reset buffer cap
             buflen = 0; // reset buffer length
-            isStart = 0; // we are no longer at start
+            startC = 0; // put starting column back to 0
             line = malloc(bufcap); // create dynamic string
         } else {
             c++; // just increment column
