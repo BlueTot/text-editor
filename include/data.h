@@ -49,6 +49,7 @@ struct editorConfig {
     int schar_sx, schar_sy; // start coordinates
     int schar_ex, schar_ey; // end coordinates
     char *yank_buffer;      // yank buffer
+    int ylen; // yank buffer length
 };
 
 extern struct editorConfig E;
