@@ -1,5 +1,6 @@
 #include "input.h"
 #include "yank_buffer.h"
+#include "editor_ops.h"
 
 char *editorPrompt(char *prompt, void (*callback)(char *, int)) {
     size_t bufsize = 128;
@@ -165,8 +166,8 @@ void editorProcessNormalKeypress(int c) {
             E.schar_ex = E.cx;
             E.schar_ey = E.cy;
             break;
-    
-        // enter visual line mode
+
+            // enter visual line mode
         case 'V':
             E.mode = MD_VISUAL_LINE;
             E.is_selected = 1;
@@ -219,66 +220,73 @@ void editorProcessNormalKeypress(int c) {
 
             // page up or page down keys entered
         case PAGE_UP: // fall down
-        case PAGE_DOWN: {
-                            if (c == PAGE_UP) {
-                                E.cy = E.rowoff;
-                            } else if (c == PAGE_DOWN) {
-                                E.cy = E.rowoff + E.screenrows - 1;
-                            }
+        case PAGE_DOWN:
+            {
+                if (c == PAGE_UP) {
+                    E.cy = E.rowoff;
+                } else if (c == PAGE_DOWN) {
+                    E.cy = E.rowoff + E.screenrows - 1;
+                }
 
-                            int times = E.screenrows;
-                            while (times--) {
-                                editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
-                            }
-                        } break;
+                int times = E.screenrows;
+                while (times--) {
+                    editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
+                }
+            } break;
 
-                        // move up
+            // move up
         case ARROW_UP:
         case 'k':
-                        editorMoveCursor(ARROW_UP);
-                        break;
+            editorMoveCursor(ARROW_UP);
+            break;
 
-                        // move down
+            // move down
         case ARROW_DOWN:
         case 'j':
-                        editorMoveCursor(ARROW_DOWN);
-                        break;
+            editorMoveCursor(ARROW_DOWN);
+            break;
 
-                        // move left
+            // move left
         case ARROW_LEFT:
         case 'h':
-                        editorMoveCursor(ARROW_LEFT);
-                        break;
+            editorMoveCursor(ARROW_LEFT);
+            break;
 
-                        // move right
+            // move right
         case ARROW_RIGHT:
         case 'l':
-                        editorMoveCursor(ARROW_RIGHT);
-                        break;
+            editorMoveCursor(ARROW_RIGHT);
+            break;
 
-                        // move to top of document
+            // move to top of document
         case 'g':
-                        E.cy = 0;
-                        break;
+            E.cy = 0;
+            break;
 
-                        // move to bottom of document
+            // move to bottom of document
         case 'G':
-                        E.cy = E.numrows - 1;
-                        break;
+            E.cy = E.numrows - 1;
+            break;
 
-                        // control key
+            // control key
         case CTRL_KEY('l'):
         case '\x1b':
-                        break;
+            break;
 
-                        // paste from buffer
+            // paste from buffer
         case 'p':
-                        pasteFromBuffer();
-                        break;
+            pasteFromBuffer();
+            break;
 
-                        // otherwise
+            // insert blank line below and enter insert mode
+        case 'o':
+            editorInsertBlankLineBelow();
+            E.mode = MD_INSERT;
+            break;
+
+            // otherwise
         default:
-                        break;
+            break;
     }
 
     quit_times = KILO_QUIT_TIMES;

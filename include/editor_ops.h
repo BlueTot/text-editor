@@ -4,4 +4,5 @@
 
 void editorInsertChar(int c);
 void editorInsertNewLine();
+void editorInsertBlankLineBelow();
 void editorDelChar();

@@ -25,6 +25,12 @@ void editorInsertNewLine() {
     E.cx = 0;
 }
 
+/* Function to insert a blank line below current line */
+void editorInsertBlankLineBelow() {
+    editorInsertRow(E.cy +1, "", 0);
+    E.cy++;
+}
+
 /* Function to delete character */
 void editorDelChar() {
     if (E.cy == E.numrows)
