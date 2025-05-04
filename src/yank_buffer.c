@@ -3,6 +3,7 @@
 #include "output.h"
 #include "row_ops.h"
 
+/* Function to yank selected text into buffer */
 void yankToBuffer() {
 
     // first try to free the yank buffer
@@ -23,12 +24,6 @@ void yankToBuffer() {
 
         // debugf("%d %d\n", r, c);
 
-        // store into buffer
-        E.yank_buffer[buflen++] = E.row[r].chars[c];
-
-        if (r == E.schar_ey && c == E.schar_ex)
-            break;
-
         // if we run out of space, resize the array
         if (buflen == bufcap) {
             bufcap *= 2;
@@ -37,8 +32,14 @@ void yankToBuffer() {
                 return;
         }
 
-        // go to next position
-        if (c >= E.row[r].size - 1) {
+        // store into buffer
+        E.yank_buffer[buflen++] = E.row[r].chars[c];
+
+        // if we reach the end point, break
+        if (r == E.schar_ey && c == E.schar_ex)
+            break;
+
+        if (E.row[r].chars[c] == '\0') {
             E.yank_buffer[buflen++] = '\n';
             r++;
             c = 0;
@@ -47,14 +48,20 @@ void yankToBuffer() {
         }
     }
 
-    E.yank_buffer = realloc(E.yank_buffer, ++buflen);
-    E.yank_buffer[buflen - 1] = '\0';
+    // if we do not end on a null character, append it to finish the string
+    if (E.yank_buffer[buflen - 1] != '\0') {
+        E.yank_buffer = realloc(E.yank_buffer, ++buflen);
+        E.yank_buffer[buflen - 1] = '\0';
+    }
+    E.ylen = buflen;
 
-    debugf("%s\n", E.yank_buffer);
+    // debugf("%s\n", E.yank_buffer);
+    // debugf("Length: %d\n", buflen);
 
-    editorSetStatusMessage("%d chars yanked to buffer", buflen - 1);
+    editorSetStatusMessage("%d chars yanked to buffer", buflen);
 }
 
+/* Function to paste text from buffer */
 void pasteFromBuffer() {
 
     if (!E.yank_buffer)
@@ -68,24 +75,23 @@ void pasteFromBuffer() {
     char *line = malloc(bufcap);
 
     int rowOff = 0;
-    int length = strlen(E.yank_buffer);
 
-    for (int i = 0; i < length ; i++) {
+    for (int i = 0; i < E.ylen ; i++) {
 
-        debugf("%d %d\n", r, c);
+        // debugf("%d %d\n", r, c);
 
-        if (E.yank_buffer[i] == '\n' || i == length - 1) {
+        if (E.yank_buffer[i] == '\n' || i == E.ylen - 1) {
 
-            if (i == length - 1)
+            if (i == E.ylen - 1)
                     line[buflen++] = E.yank_buffer[i];
 
-            debugf("%s %d %d\n", line, rowOff, startC);
+            // debugf("%s %d %d\n", line, rowOff, startC);
 
-            if (startC != 0 && i == length - 1) {
-                editorRowInsertString(&E.row[r], startC, line, buflen);
+            if (startC != 0 && i == E.ylen - 1) {
+                editorRowInsertString(&E.row[r], startC, line, buflen - 1);
                 editorUpdateRow(&E.row[r]);
             } else {
-                editorInsertRow(r, line, buflen);
+                editorInsertRow(r, line, buflen - 1);
                 editorUpdateRow(&E.row[r]);
             }
 
@@ -114,7 +120,7 @@ void pasteFromBuffer() {
 
     free(line);
 
-    editorSetStatusMessage("%d chars pasted from buffer", length);
+    editorSetStatusMessage("%d chars pasted from buffer", E.ylen);
 }
 
 void freeYankBuffer() { free(E.yank_buffer); }
